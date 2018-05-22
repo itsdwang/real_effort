@@ -26,6 +26,7 @@ class Transcribe(Page):
                                        allowed_error_rate)
         if ok:
             self.player.levenshtein_distance = distance
+            self.player.ratio = 1 - distance / Constants.maxdistance
         else:
             if allowed_error_rate == 0:
                 return "The transcription should be exactly the same as on the image."
@@ -37,11 +38,13 @@ class Transcribe(Page):
 
 
 class Results(Page):
+    
     def is_displayed(self):
         return self.round_number == Constants.num_rounds
 
     def vars_for_template(self):
         table_rows = []
+
         for prev_player in self.player.in_all_rounds():
             row = {
                 'round_number': prev_player.round_number,
@@ -50,9 +53,35 @@ class Results(Page):
                 'distance': prev_player.levenshtein_distance,
                 'ratio':   1 - prev_player.levenshtein_distance / Constants.maxdistance,
             }
+            group = self.group
+            player1 = group.get_player_by_id(1)
+            player1.ratio = 1 - prev_player.levenshtein_distance / Constants.maxdistance
+            print("workpls")
+            print(player1.ratio)
+
+
+            
             table_rows.append(row)
 
         return {'table_rows': table_rows}
 
 
-page_sequence = [Transcribe, Results]
+class part2(Page):
+    form_model = 'player'
+    form_fields = ['ratio']
+    def vars_for_template(self):
+
+        group = self.group
+        player = group.get_player_by_id(1)
+
+
+        return{'ratio': player.ratio}
+        
+
+
+
+
+    def is_displayed(self):
+        return self.round_number == 2
+
+page_sequence = [Transcribe, Results, part2]

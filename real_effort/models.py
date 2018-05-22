@@ -50,7 +50,7 @@ class Constants(BaseConstants):
         "Hex ton satoha egavecen. Loh ta receso minenes da linoyiy xese coreliet ocotine! Senuh asud tu bubo tixorut sola, bo ipacape le rorisin lesiku etutale saseriec niyacin ponim na. Ri arariye senayi esoced behin? Tefid oveve duk mosar rototo buc: Leseri binin nolelar sise etolegus ibosa farare. Desac eno titeda res vab no mes!",
     ]
 
-    num_rounds = len(reference_texts)
+    num_rounds = len(reference_texts)     
     maxdistance = len(reference_texts[1])
 
     allowed_error_rates = [0, 0.99]
@@ -70,3 +70,5 @@ class Group(BaseGroup):
 class Player(BasePlayer):
     transcribed_text = models.LongStringField()
     levenshtein_distance = models.IntegerField()
+    ratio = models.IntegerField()
+    contribution = models.IntegerField(min=0, max=10000)

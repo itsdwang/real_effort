@@ -1,0 +1,19 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Tax Paying
+{% endblock %}
+
+{% block content %}
+
+    <p>
+        decide how much income to report. your tax rate is : {{ ratio }}
+    </p>
+
+
+    {% formfield player.ratio label="How much income will you report?" %}
+
+    {% next_button %}
+
+{% endblock %}
