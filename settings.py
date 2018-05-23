@@ -17,7 +17,7 @@ SESSION_CONFIGS = [
     {
         'name': 'real_effort',
         'display_name': "real_effort_display",
-        'num_demo_participants': 1,
+        'num_demo_participants': 3,
         'app_sequence': ['real_effort'],
     },
     {

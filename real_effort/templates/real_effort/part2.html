@@ -8,11 +8,14 @@
 {% block content %}
 
     <p>
-        decide how much income to report. your tax rate is : {{ ratio }}
+        Decide how much income to report for taxes. Your income is {{ income }}: based on your performance in the previous task, which multiplied your income by {{ ratio }}
     </p>
+    <p> The total tax collected by every player is added together, and divided evenly among all players 
+        (even those who reported no income. Your total money is the amount of income you have remaining 
+        after tax is taken out, plus your share of the total tax money.</p>
 
 
-    {% formfield player.ratio label="How much income will you report?" %}
+    {% formfield player.contribution label="How much income will you report?" %}
 
     {% next_button %}
 
