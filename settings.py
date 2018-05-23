@@ -19,6 +19,12 @@ SESSION_CONFIGS = [
         'display_name': "real_effort_display",
         'num_demo_participants': 1,
         'app_sequence': ['real_effort'],
+    },
+    {
+	'name': 'public_goods',
+	'display_name': "Public Goods",
+	'num_demo_participants':3,
+	'app_sequence': ['public_goods'],
     }
 ]
 # see the end of this file for the inactive session configs

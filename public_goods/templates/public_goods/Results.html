@@ -9,8 +9,8 @@
   
 
     <table class="table-condensed" style="width:500px; margin-top:20px;">
-        <tr><td>You contributed:</td><td>{{ player.contribution }}</td></tr>
-        <tr><td>Other participants contributed:</td><td></td></tr>
+        <tr><td>You reported:</td><td>{{ player.contribution }}</td></tr>
+        <tr><td>Other participants reported:</td><td></td></tr>
         {% for p in player.get_others_in_group %}
             <tr><td></td><td>{{ p.contribution }}</td></tr>
         {% endfor %}
