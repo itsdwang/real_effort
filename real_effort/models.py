@@ -46,6 +46,7 @@ class Constants(BaseConstants):
     players_per_group = 3
     baseIncome = 100000
     multiplier = 3
+    tax = 0.3
 
 
     reference_texts = [
@@ -67,6 +68,7 @@ class Subsession(BaseSubsession):
 class Group(BaseGroup): 
     total_report = models.CurrencyField()
     total_contribution = models.IntegerField()
+    total_earnings = models.IntegerField()
     
     pass
 
@@ -75,6 +77,6 @@ class Player(BasePlayer):
     transcribed_text = models.LongStringField()
     levenshtein_distance = models.IntegerField()
     ratio = models.FloatField()
-    contribution = models.IntegerField(min=0, max=10000, initial = -1)
+    contribution = models.IntegerField(min=0, max=100000, initial = -1)
     income = models.IntegerField()
     done = models.BooleanField()

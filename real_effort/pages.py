@@ -77,9 +77,10 @@ class part2(Page):
 
 
         self.player.ratio = round(self.player.ratio,5)
+        displaytax = Constants.tax * 100
 
 
-        return{'ratio': self.player.ratio, 'income': self.player.income}
+        return{'ratio': self.player.ratio, 'income': self.player.income, 'tax': displaytax}
         
 
 
@@ -97,18 +98,20 @@ class resultsWaitPage(WaitPage):
     def after_all_players_arrive(self):
         group = self.group
         players = group.get_players()
-        contributions = [p.contribution for p in players]
+        contributions = [p.contribution * Constants.tax for p in players]
         group.total_contribution = sum(contributions)
-        group.individual_share = group.total_contribution * Constants.multiplier / Constants.players_per_group
+        group.total_earnings = Constants.multiplier * group.total_contribution
+        group.individual_share = group.total_earnings / Constants.players_per_group
         for p in players:
-            p.payoff = p.income - p.contribution + group.individual_share
+            p.payoff = p.income - ( Constants.tax * p.contribution) + group.individual_share
 
 class results2(Page):
     def is_displayed(self):
         return self.player.payoff != 0
     def vars_for_template(self):
+        share = self.group.total_earnings / Constants.players_per_group
         return{
-            'total_earnings': self.group.total_contribution * Constants.multiplier,
+            'total_earnings': self.group.total_contribution * Constants.multiplier, 'player_earnings': share
         }
 
 
