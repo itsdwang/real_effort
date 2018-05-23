@@ -43,10 +43,7 @@ def distance_and_ok(transcribed_text, reference_text, max_error_rate):
 
 class Constants(BaseConstants):
     name_in_url = 'real_effort'
-    players_per_group = 2
-    baseIncome = 100000
-    multiplier = 3
-
+    players_per_group = None
 
     reference_texts = [
         "Revealed preference",
@@ -66,7 +63,6 @@ class Subsession(BaseSubsession):
 
 class Group(BaseGroup): 
     total_report = models.CurrencyField()
-    total_contribution = models.IntegerField()
     
     pass
 
@@ -74,7 +70,5 @@ class Group(BaseGroup):
 class Player(BasePlayer):
     transcribed_text = models.LongStringField()
     levenshtein_distance = models.IntegerField()
-    ratio = models.FloatField()
-    contribution = models.IntegerField(min=0, max=10000, initial = -1)
-    income = models.IntegerField()
-    done = models.BooleanField()
+    ratio = models.IntegerField()
+    contribution = models.IntegerField(min=0, max=10000)

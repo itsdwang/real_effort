@@ -20,6 +20,9 @@ class Constants(BaseConstants):
     endowment = c(100)
     multiplier = 2
 
+    # Add tax percentage
+    tax = 0.30
+
 
 class Subsession(BaseSubsession):
     def vars_for_admin_report(self):
@@ -45,13 +48,13 @@ class Group(BaseGroup):
 
     def set_payoffs(self):
         self.total_contribution = sum([p.contribution for p in self.get_players()])
-        self.individual_share = self.total_contribution * Constants.multiplier / Constants.players_per_group
+        self.individual_share = (self.total_contribution * Constants.tax *  Constants.multiplier) / Constants.players_per_group
         for p in self.get_players():
-            p.payoff = (Constants.endowment - p.contribution) + self.individual_share
+            p.payoff = (Constants.endowment - (p.contribution * Constants.tax) + self.individual_share)
 
 
 class Player(BasePlayer):
     contribution = models.CurrencyField(
         min=0, max=Constants.endowment,
-        doc="""The amount contributed by the player""",
+        doc="""The amount of income reported by the player""",
     )
