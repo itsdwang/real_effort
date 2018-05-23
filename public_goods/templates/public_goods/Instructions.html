@@ -9,20 +9,21 @@
     <p>
         In this study, you will be in a randomly formed group
         of {{ Constants.players_per_group }} participants. Each participant in
-        the group has a fixed income of {{ Constants.endowment }}. The group
-        has the opportunity to undertake a joint project. A tax of {{ Constants.tax }}
-        is automatically collected from each player. Each participant in
-        the group decides how much of his/her income to report. Reported income
-        could be any integer from 0 to {{ Constants.endowment }}.
+        the group is given {{ Constants.endowment }}. The group
+        has the opportunity to undertake a joint project. Each participant in
+        the group decides how much she or he is going to contribute to
+        the project. Contribution could be any integer from 0
+        to {{ Constants.endowment }}.
     </p>
     <p>
         The earnings from the project are calculated as follows: The
-        total tax collected from all {{ Constants.players_per_group }} participants are
-        added up, the total tax is multiplied by a factor of {{ Constants.multiplier }},
-        and the resulting amount is the total earnings from the project, which is
+        contributions of all {{ Constants.players_per_group }} participants are
+        added up, the total contribution
+        is multiplied by a factor of {{ Constants.multiplier }}, and the
+        resulting amount is the total earnings from the project, which is
         evenly split among all {{ Constants.players_per_group }}
         participants. Your payoff equals your earnings from the project, plus
-        the amount of income you have remaining after the tax is taken out.
+        the amount you did not contribute.
     </p>
     </div>
 </div>

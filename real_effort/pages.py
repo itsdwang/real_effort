@@ -8,6 +8,8 @@ class Transcribe(Page):
     form_model = 'player'
     form_fields = ['transcribed_text']
 
+        
+
     def vars_for_template(self):
 
         return {
@@ -34,10 +36,13 @@ class Transcribe(Page):
                 return "This transcription appears to contain too many errors."
 
     def before_next_page(self):
+
         self.player.payoff = 0
 
 
 class Results(Page):
+    form_model = 'player'
+    form_fields = []
     
     def is_displayed(self):
         return self.round_number == Constants.num_rounds
@@ -53,11 +58,10 @@ class Results(Page):
                 'distance': prev_player.levenshtein_distance,
                 'ratio':   1 - prev_player.levenshtein_distance / Constants.maxdistance,
             }
-            group = self.group
-            player1 = group.get_player_by_id(1)
-            player1.ratio = 1 - prev_player.levenshtein_distance / Constants.maxdistance
-            print("workpls")
-            print(player1.ratio)
+            self.player.ratio = 1 - prev_player.levenshtein_distance / Constants.maxdistance
+            self.player.income = Constants.baseIncome * self.player.ratio
+            
+
 
 
             
@@ -68,14 +72,14 @@ class Results(Page):
 
 class part2(Page):
     form_model = 'player'
-    form_fields = ['ratio']
+    form_fields = ['contribution']
     def vars_for_template(self):
 
-        group = self.group
-        player = group.get_player_by_id(1)
+
+        self.player.ratio = round(self.player.ratio,5)
 
 
-        return{'ratio': player.ratio}
+        return{'ratio': self.player.ratio, 'income': self.player.income}
         
 
 
@@ -84,4 +88,40 @@ class part2(Page):
     def is_displayed(self):
         return self.round_number == 2
 
-page_sequence = [Transcribe, Results, part2]
+class resultsWaitPage(WaitPage):
+    def is_displayed(self):
+        return self.player.contribution != -1
+
+
+
+    def after_all_players_arrive(self):
+        group = self.group
+        players = group.get_players()
+        contributions = [p.contribution for p in players]
+        group.total_contribution = sum(contributions)
+        group.individual_share = group.total_contribution * Constants.multiplier / Constants.players_per_group
+        for p in players:
+            p.payoff = p.income - p.contribution + group.individual_share
+
+class results2(Page):
+    def is_displayed(self):
+        return self.player.payoff != 0
+    def vars_for_template(self):
+        return{
+            'total_earnings': self.group.total_contribution * Constants.multiplier,
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+page_sequence = [Transcribe, Results, part2, resultsWaitPage, results2]
