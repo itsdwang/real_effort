@@ -2,6 +2,7 @@ from otree.api import (
     models, widgets, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
     Currency as c, currency_range
 )
+from . import config
 import random
 
 doc = """
@@ -17,11 +18,19 @@ class Constants(BaseConstants):
     instructions_template = 'public_goods/Instructions.html'
 
     # """Amount allocated to each player"""
-    endowment = c(100)
-    multiplier = 2
+    # endowment = c(100)
+    endowment = c(config.data[0][0])
+
+    # multiplier = 2
+    multiplier = config.data[0][1]
 
     # Add tax percentage
-    tax = 0.30
+    # tax = 0.30
+    tax = config.data[0][2]
+
+    # Add displayed tax percentage
+    # displayed_tax = 30
+    displayed_tax = tax * 100
 
 
 class Subsession(BaseSubsession):

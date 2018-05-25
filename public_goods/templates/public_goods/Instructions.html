@@ -10,14 +10,14 @@
         In this study, you will be in a randomly formed group
         of {{ Constants.players_per_group }} participants. Each participant in
         the group has a fixed income of {{ Constants.endowment }}. The group
-        has the opportunity to undertake a joint project. A tax of {{ Constants.tax }}
-        is automatically collected from each player. Each participant in
+        has the opportunity to undertake a joint project. A tax of {{ Constants.displayed_tax }}% is
+        automatically collected from each player. Each participant in
         the group decides how much of his/her income to report. Reported income
         could be any integer from 0 to {{ Constants.endowment }}.
     </p>
     <p>
         The earnings from the project are calculated as follows: The
-        total tax collected from all {{ Constants.players_per_group }} participants are
+        total tax collected from all {{ Constants.players_per_group }} participants is
         added up, the total tax is multiplied by a factor of {{ Constants.multiplier }},
         and the resulting amount is the total earnings from the project, which is
         evenly split among all {{ Constants.players_per_group }}
