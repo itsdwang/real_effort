@@ -3,6 +3,8 @@ from otree.api import (
     Currency as c, currency_range
 )
 import random
+from . import config as config_py
+
 
 doc = """
 This is a task that requires real effort from participants.
@@ -42,11 +44,19 @@ def distance_and_ok(transcribed_text, reference_text, max_error_rate):
 
 
 class Constants(BaseConstants):
+    config = config_py.export_data()
     name_in_url = 'real_effort'
-    players_per_group = 3
-    baseIncome = 100000
-    multiplier = 3
-    tax = 0.3
+
+    number_game_rounds = len(config)
+    players_per_group = 2
+
+    
+    
+
+
+
+
+
 
 
     reference_texts = [
@@ -56,7 +66,6 @@ class Constants(BaseConstants):
 
     num_rounds = len(reference_texts)     
     maxdistance = len(reference_texts[1])
-
     allowed_error_rates = [0, 0.99]
     
 
@@ -69,6 +78,8 @@ class Group(BaseGroup):
     total_report = models.CurrencyField()
     total_contribution = models.IntegerField()
     total_earnings = models.IntegerField()
+
+
     
     pass
 
