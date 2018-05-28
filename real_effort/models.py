@@ -47,7 +47,7 @@ class Constants(BaseConstants):
     config = config_py.export_data()
     name_in_url = 'real_effort'
 
-    number_game_rounds = len(config)
+    number_game_rounds = len(config[0])
     players_per_group = 2
 
     
@@ -64,7 +64,7 @@ class Constants(BaseConstants):
         "Hex ton satoha egavecen. Loh ta receso minenes da linoyiy xese coreliet ocotine! Senuh asud tu bubo tixorut sola, bo ipacape le rorisin lesiku etutale saseriec niyacin ponim na. Ri arariye senayi esoced behin? Tefid oveve duk mosar rototo buc: Leseri binin nolelar sise etolegus ibosa farare. Desac eno titeda res vab no mes!",
     ]
 
-    num_rounds = len(reference_texts)     
+    num_rounds = len(reference_texts) * number_game_rounds    
     maxdistance = len(reference_texts[1])
     allowed_error_rates = [0, 0.99]
     
@@ -78,6 +78,7 @@ class Group(BaseGroup):
     total_report = models.CurrencyField()
     total_contribution = models.IntegerField()
     total_earnings = models.IntegerField()
+    individual_share = models.FloatField()
 
 
     
@@ -89,5 +90,6 @@ class Player(BasePlayer):
     levenshtein_distance = models.IntegerField()
     ratio = models.FloatField()
     contribution = models.IntegerField(min=0, max=100000, initial = -1)
-    income = models.IntegerField()
+    income = models.FloatField()
     done = models.BooleanField()
+    payoff = models.FloatField()
