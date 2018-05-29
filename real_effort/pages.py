@@ -83,9 +83,13 @@ class Results(Page):
 
 
 class part2(Page):
+    timeout_seconds = 10
 
     form_model = 'player'
     form_fields = ['contribution']
+    def before_next_page(self):
+        if self.timeout_happened:
+            print("idc")
     
     def vars_for_template(self):
         print("in part2")
@@ -176,6 +180,19 @@ class resetPage(WaitPage):
 
 
 
-
-
 page_sequence = [Transcribe, Results, part2, resultsWaitPage, results2,resetPage]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

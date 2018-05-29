@@ -49,6 +49,7 @@ class Constants(BaseConstants):
 
     number_game_rounds = len(config[0])
     players_per_group = 2
+    instructions_template = 'real_effort/InstructionsPG.html'
 
     
     
