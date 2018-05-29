@@ -12,10 +12,12 @@ data = [
     
 ]
 
-def export_data():
-    data[0] = shuffle(data[0])
-    return data
-
 def shuffle(data):
-    random.shuffle(data)
-    return data
+    # random.sample does not shuffle data in place. random.shuffle would work in this case but
+    # could lead to bugs if we are say trying to write the data to csv after having used
+    # it in the experiment.
+    return [random.sample(data[0], k=len(data[0]))]
+
+def export_data():
+    return shuffle(data)
+

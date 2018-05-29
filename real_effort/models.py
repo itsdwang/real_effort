@@ -51,28 +51,94 @@ class Constants(BaseConstants):
     players_per_group = 2
     instructions_template = 'real_effort/InstructionsPG.html'
 
-    
-    
-
-
-
-
-
-
-
     reference_texts = [
         "Revealed preference",
         "Hex ton satoha egavecen. Loh ta receso minenes da linoyiy xese coreliet ocotine! Senuh asud tu bubo tixorut sola, bo ipacape le rorisin lesiku etutale saseriec niyacin ponim na. Ri arariye senayi esoced behin? Tefid oveve duk mosar rototo buc: Leseri binin nolelar sise etolegus ibosa farare. Desac eno titeda res vab no mes!",
     ]
 
-    num_rounds = len(reference_texts) * number_game_rounds    
-    maxdistance = len(reference_texts[1])
+    '''
+        NOTES TO DAN AND JEFF:
+
+        you were getting the increasing round number error because you were increasing the round
+        number when you weren't supposed to. In the transcription task, the there is a different
+        transcription page every round. In this experiment, that is not the case. You might have 
+        2 transcription pages, but they must all be in the same round.
+        The best way to implement this is by having a set number of reference texts that cannot be
+        changed across experiments. Then, you need a page for each one. For now, assume that there
+        will always be 2 texts to transcribe in transcribe mode.
+
+        In pages.py, the page_sequence list at the bottom determines which round you are in. You
+        start in round 1, and when the player has gone thru all the pages, the round number
+        increments. Since you had it set to display the part 2 pages only when the round number is
+        even, it will do 1 transcription task, not display any other pages, then move on to round 2,
+        displaying all pages.
+
+        Fix this.
+
+        Please start thoroughly documenting all your code as you write it. These files will be read
+        and edited a lot more often by econ grad students and by Kristian than they will by you.
+
+        Also: please only host the real_effort directory on github. You should have a copy of the 
+        base otree directory (in this case named public_goodsv2, and which contains settings.py
+        and other files, along with any and all experiment repos) on your local machine, not as
+        a git repo. To repeat: a directory (which is not instantiated as a git repo) 
+        on your computer, should hold all the shit that public_goodsv2/ holds rn. 
+        real_effort should be a git repo stored on jeffrey's github. when you push and pull,
+        you are only pushing and pulling the real_effort repo and all the shit in it.
+
+        summary:
+
+        page sequence
+        initial instructions
+        (transcription mode only, round 1 only) transcrption instructions
+        (transcription mode only, round 1 only) transcription page 1
+        (transcription mode only, round 1 only) transcription page 2
+        (transcription mode only, round 1 only) transcription results
+        tax instructions
+        tax page 1
+        tax page 2
+        tax page 3
+        ...
+        tax page n, n = Constants.num_rounds
+        (round Constants.num_rounds only) Results
+
+    
+        Transcription mode:
+            2 pages, player transcribes a thing on each one.
+            only the second one (longer one) determines their ratio and therefore their endowment
+            all transcrition shit only happens on round 1, and players endowment afterward is 
+            set in player.participant.vars. See the otree docs.
+
+        Non-transcription mode/after transcription pages are gone thru
+            tax pages, 1 per round
+            results wait page after last tax page
+            results after wait page, with payoffs set using a result from a randomly chosen
+            round of taxes. same round for all players.
+
+        0. Find a time to (both of u at same time) skype kristian and talk about this ASAP.
+        1. implement transcription mode causing transcription pages to show or not.
+        2. fix page sequence thing
+        3. change how the experiment is hosted on github
+        4. add documentation
+        5. test and make sure it all works
+
+        
+
+    '''
+    # num_rounds = len(reference_texts) * number_game_rounds    
+    num_rounds = number_game_rounds
+    maxdistance = max([len(s) for s in reference_texts])
     allowed_error_rates = [0, 0.99]
     
 
 
 class Subsession(BaseSubsession):
-    pass
+    
+    # to create groups of size Constants.players_per_group every round by randomly selecting
+    # Constants.players_per_group players from all players in the subsession and assigning them
+    # to a group
+    def creating_session(self):
+        self.group_randomly()
 
 
 class Group(BaseGroup): 
@@ -81,9 +147,6 @@ class Group(BaseGroup):
     total_earnings = models.IntegerField()
     individual_share = models.FloatField()
 
-
-    
-    pass
 
 
 class Player(BasePlayer):

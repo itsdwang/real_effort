@@ -180,8 +180,8 @@ class resetPage(WaitPage):
 
 
 
-page_sequence = [Transcribe, Results, part2, resultsWaitPage, results2,resetPage]
-
+#page_sequence = [Transcribe, Results, part2, resultsWaitPage, results2,resetPage]
+page_sequence = [Transcribe, Results, part2, resultsWaitPage, results2,]
 
 
 
