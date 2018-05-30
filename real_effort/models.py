@@ -127,7 +127,8 @@ class Constants(BaseConstants):
     '''
     # num_rounds = len(reference_texts) * number_game_rounds    
     num_rounds = number_game_rounds
-    maxdistance = len(reference_texts[1])
+    maxdistance1 = len(reference_texts[0])
+    maxdistance2 = len(reference_texts[1])
     allowed_error_rates = [0, 0.99]
     
 
@@ -138,14 +139,17 @@ class Subsession(BaseSubsession):
     # Constants.players_per_group players from all players in the subsession and assigning them
     # to a group
     def creating_session(self):
+        print("creating subsession")
+        print("in round")
+        print(self.round_number)
         self.group_randomly()
         for p in self.get_players():
+
             p.ratio = 1
             p.contribution = 0
             p.income = Constants.config[0][self.round_number-1]["end"]
-            p.participant.vars[0] = {}
-            p.participant.vars[0]['transcribeDone'] = False
-            p.participant.vars[self.round_number] = {}
+
+
 
 
 

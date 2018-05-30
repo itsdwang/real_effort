@@ -9,8 +9,9 @@ class Transcribe(Page):
     form_model = 'player'
     form_fields = ['transcribed_text']
     def is_displayed(self):
+
         if(Constants.config[0][self.round_number-1]["transcription"] == False): #initial check for first round no transcribe
-            self.player.ratio = 1 #sets up the game for no transcription
+
             return False
         for p in self.player.in_all_rounds(): #looks through the game history to see if transcription is done
             if(p.transcriptionDone):
@@ -27,21 +28,21 @@ class Transcribe(Page):
 
 
         return {
-            'image_path': 'real_effort/paragraphs/{}.png'.format(1), 
-            'reference_text': Constants.reference_texts[0],
+            'image_path': 'real_effort/paragraphs/{}.png'.format(2), 
+            'reference_text': Constants.reference_texts[1],
             'debug': settings.DEBUG,
-            'required_accuracy': 100 * (1 - Constants.allowed_error_rates[0]),
+            'required_accuracy': 100 * (1 - Constants.allowed_error_rates[1]),
         }
 
     def transcribed_text_error_message(self, transcribed_text): # Transcription accuracy check seems to work here
 
-        reference_text = Constants.reference_texts[0]
-        allowed_error_rate = Constants.allowed_error_rates[0]
+        reference_text = Constants.reference_texts[1]
+        allowed_error_rate = Constants.allowed_error_rates[1]
         distance, ok = distance_and_ok(transcribed_text, reference_text,
                                        allowed_error_rate)
         if ok:
             self.player.levenshtein_distance = distance
-            self.player.ratio = 1 - distance / Constants.maxdistance
+            self.player.ratio = 1 - distance / Constants.maxdistance2
         else:
             if allowed_error_rate == 0:
                 return "The transcription should be exactly the same as on the image."
@@ -59,7 +60,9 @@ class Transcribe2(Page): # Transcription task #2 (SHOULD be determining income)
     form_fields = ['transcribed_text2']
     def is_displayed(self):
         #basically same checks as transcribe 1
+
         if(Constants.config[0][self.round_number-1]["transcription"] == False): 
+            self.player.ratio = 1 #sets up the game for no transcription
             return False
         for p in self.player.in_all_rounds():
             if(p.transcriptionDone): 
@@ -76,25 +79,13 @@ class Transcribe2(Page): # Transcription task #2 (SHOULD be determining income)
 
 
         return {
-            'image_path': 'real_effort/paragraphs/{}.png'.format(2),
-            'reference_text': Constants.reference_texts[1],
+            'image_path': 'real_effort/paragraphs/{}.png'.format(1),
+            'reference_text': Constants.reference_texts[0],
             'debug': settings.DEBUG,
-            'required_accuracy': 100 * (1 - Constants.allowed_error_rates[1]),
+            'required_accuracy': 100 * (1 - Constants.allowed_error_rates[0]),
         }
         #  below function not working, always returns 1
-    def transcribed_text_error_message(self, transcribed_text2): #where is this function being called? 
-        reference_text = Constants.reference_texts[1]  
-        allowed_error_rate = Constants.allowed_error_rates[1]
-        distance, ok = distance_and_ok(self.player.transcribed_text2, reference_text,
-                                       allowed_error_rate)
-        if ok:
-            self.player.levenshtein_distance = distance
-            self.player.ratio = 1 - distance / Constants.maxdistance
-        else:
-            if allowed_error_rate == 0:
-                return "The transcription should be exactly the same as on the image."
-            else:
-                return "This transcription appears to contain too many errors."
+
 
     def before_next_page(self):
 
@@ -133,9 +124,9 @@ class Results(Page):
                 'reference_text_length': len(Constants.reference_texts[1]),
                 'transcribed_text_length': len(prev_player.transcribed_text),
                 'distance': prev_player.levenshtein_distance,
-                'ratio':   1 - prev_player.levenshtein_distance / Constants.maxdistance,
+                'ratio':   1 - prev_player.levenshtein_distance / Constants.maxdistance2,
             }
-            self.player.ratio = 1 - prev_player.levenshtein_distance / Constants.maxdistance
+            self.player.ratio = 1 - prev_player.levenshtein_distance / Constants.maxdistance2
             self.player.income *= self.player.ratio
             
         
@@ -161,6 +152,15 @@ class part2(Page):
 
     
     def vars_for_template(self):
+
+        if self.player.ratio == 1 and Constants.config[0][self.round_number-1]["transcription"] == True:
+            for p in self.player.in_all_rounds():
+                if p.ratio < 1:
+                    self.player.ratio = p.ratio
+                    self.player.income *= self.player.ratio
+
+
+
 
         config = Constants.config
 
@@ -229,7 +229,7 @@ class results2(Page):
 
 
 #page_sequence = [Transcribe, Results, part2, resultsWaitPage, results2,resetPage]
-page_sequence = [Transcribe,Transcribe2,Results,part2,resultsWaitPage, results2]
+page_sequence = [Transcribe2,Transcribe,Results,part2,resultsWaitPage, results2]
 # 
 
 
