@@ -3,6 +3,9 @@ from otree.api import Currency as c, currency_range
 from .models import Constants, levenshtein, distance_and_ok
 from django.conf import settings
 
+class Introduction(Page):
+    """Description of the game: How to play and returns expected"""
+    pass
 
 class Transcribe(Page):
     form_model = 'player'
@@ -107,7 +110,6 @@ class Results(Page):
         table_rows = []
         config = Constants.config
         self.player.income = config[0][self.round_number - 1]["end"]
-        print(self.player.income)
 
         for prev_player in self.player.in_all_rounds(): # may be causing the wrong ratio 
         #income calculation done here
@@ -138,7 +140,11 @@ class Results(Page):
 class part2(Page):
     form_model = 'player'
     form_fields = ['contribution']
-    
+
+    def contribution_max(self):
+        """Dynamically sets the maximum amount of his/her income that the player can report to be their income"""
+        return self.player.income
+
     def vars_for_template(self):
         if self.player.ratio == 1 and Constants.config[0][self.round_number-1]["transcription"] == True:
             for p in self.player.in_all_rounds():
@@ -148,9 +154,9 @@ class part2(Page):
 
         config = Constants.config
 
-        # for display purposes
-        self.player.ratio = round(self.player.ratio,5) 
-        displaytax = config[0][self.round_number-1]["tax"] * 100
+        # Displays the tax as a percentage rather than a decimal between 0 and 1
+        self.player.ratio = round(self.player.ratio, 5)
+        displaytax = config[0][self.round_number - 1]["tax"] * 100
 
         return{'ratio': self.player.ratio, 'income': self.player.income, 'tax': displaytax, 'flag': config[0][self.round_number-1]["transcription"]}
 
@@ -162,7 +168,7 @@ class resultsWaitPage(WaitPage):
 
         group = self.group
         players = group.get_players()
-        contributions = [p.contribution * config[0][int(self.round_number-1)]["tax"] for p in players]
+        contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
         group.total_contribution = sum(contributions)
         group.total_earnings = config[0][self.round_number-1]["multiplier"] * group.total_contribution
         group.individual_share = group.total_earnings / Constants.players_per_group
@@ -185,4 +191,4 @@ class results2(Page):
         }
 
 
-page_sequence = [Transcribe2, Transcribe, Results, part2, resultsWaitPage, results2]
+page_sequence = [Introduction, Transcribe2, Transcribe, Results, part2, resultsWaitPage, results2]

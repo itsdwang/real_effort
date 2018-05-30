@@ -60,7 +60,7 @@ class Constants(BaseConstants):
     # number of game rounds
     num_rounds = len(config[0])
     players_per_group = 2
-    instructions_template = 'real_effort/InstructionsPG.html'
+    instructions_template = 'real_effort/Instructions.html'
 
     reference_texts = [
         "Revealed preference",
@@ -89,7 +89,9 @@ class Subsession(BaseSubsession):
 
 
 class Group(BaseGroup): 
-    baseIncome = models.FloatField()
+    #  baseIncome = models.FloatField()
+    baseIncome = models.CurrencyField()
+
     total_report = models.CurrencyField()
     total_contribution = models.IntegerField()
     total_earnings = models.IntegerField()
@@ -101,8 +103,10 @@ class Player(BasePlayer):
     transcribed_text2 = models.LongStringField()
     levenshtein_distance = models.IntegerField()
     ratio = models.FloatField()     # Multiplied by base income to determine starting income
-    contribution = models.IntegerField(min=0, max=100000, initial = -1)
-    income = models.FloatField()
+    contribution = models.IntegerField(min = 0, initial = -1)
+
+    # income = models.FloatField()
+    income = models.CurrencyField()
     done = models.BooleanField()
     transcriptionDone = models.BooleanField()
     payoff = models.FloatField()
