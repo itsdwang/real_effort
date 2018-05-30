@@ -1,1 +1,1 @@
-I don't know if this is the correct way to share otree stuff on github so feel free to change the stuff up
+This repo may still be hosted the wrong way, will fix after further clarification later
