@@ -127,7 +127,7 @@ class Constants(BaseConstants):
     '''
     # num_rounds = len(reference_texts) * number_game_rounds    
     num_rounds = number_game_rounds
-    maxdistance = max([len(s) for s in reference_texts])
+    maxdistance = len(reference_texts[1])
     allowed_error_rates = [0, 0.99]
     
 
@@ -139,6 +139,11 @@ class Subsession(BaseSubsession):
     # to a group
     def creating_session(self):
         self.group_randomly()
+        for p in self.get_players():
+            p.participant.vars[0] = {}
+            p.participant.vars[0]['transcribeDone'] = False
+            p.participant.vars[self.round_number] = {}
+
 
 
 class Group(BaseGroup): 
@@ -151,9 +156,13 @@ class Group(BaseGroup):
 
 class Player(BasePlayer):
     transcribed_text = models.LongStringField()
+    transcribed_text2 = models.LongStringField()
     levenshtein_distance = models.IntegerField()
     ratio = models.FloatField()
     contribution = models.IntegerField(min=0, max=100000, initial = -1)
     income = models.FloatField()
     done = models.BooleanField()
+    transcriptionDone = models.BooleanField()
     payoff = models.FloatField()
+    def method(self):
+        self.participant.vars['transcribeDone'] = False
