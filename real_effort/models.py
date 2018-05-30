@@ -147,6 +147,7 @@ class Subsession(BaseSubsession):
 
 
 class Group(BaseGroup): 
+    baseIncome = models.FloatField()
     total_report = models.CurrencyField()
     total_contribution = models.IntegerField()
     total_earnings = models.IntegerField()

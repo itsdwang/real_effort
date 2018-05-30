@@ -25,8 +25,6 @@ class Transcribe(Page):
         print(self.round_number)
         print(Constants.reference_texts[0])
 
-
-
         return {
             'image_path': 'real_effort/paragraphs/{}.png'.format(1),
             'reference_text': Constants.reference_texts[0],
@@ -119,7 +117,7 @@ class Results(Page):
         print("in results")
         print(self.round_number)
         table_rows = []
-        config = config_py.export_data()
+        config = Constants.config
         self.player.income = config[0][self.round_number-1]["end"]
         print(self.player.income)
 
@@ -145,7 +143,7 @@ class Results(Page):
 
         return {'table_rows': table_rows}
     def before_next_page(self):
-        config = config_py.export_data()
+        
         self.player.transcriptionDone = True
 
 
@@ -153,7 +151,7 @@ class part2(Page):
 
 
 
-    timeout_seconds = 30
+    
 
     form_model = 'player'
     form_fields = ['contribution']
@@ -164,12 +162,13 @@ class part2(Page):
     def vars_for_template(self):
         print("in part2")
         print(self.round_number)
-        config = config_py.export_data()
+        config = Constants.config
 
 
 
         self.player.ratio = round(self.player.ratio,5)
         displaytax = config[0][self.round_number-1]["tax"] * 100
+        
 
 
         return{'ratio': self.player.ratio, 'income': self.player.income, 'tax': displaytax}
@@ -184,13 +183,13 @@ class resultsWaitPage(WaitPage):
 
 
     def after_all_players_arrive(self):
-        config = config_py.export_data()
+        config = Constants.config
 
         group = self.group
         players = group.get_players()
-        contributions = [p.contribution * config[0][int(self.round_number / 2 - 1)]["tax"] for p in players]
+        contributions = [p.contribution * config[0][int(self.round_number-1)]["tax"] for p in players]
         group.total_contribution = sum(contributions)
-        group.total_earnings = config[0][int(self.round_number / 2 - 1)]["multiplier"] * group.total_contribution
+        group.total_earnings = config[0][int(self.round_number-1)]["multiplier"] * group.total_contribution
         group.individual_share = group.total_earnings / Constants.players_per_group
         for p in players:
 
@@ -199,7 +198,7 @@ class resultsWaitPage(WaitPage):
             print(p.income)
 
 
-            p.payoff = p.income - ( config[0][int(self.round_number / 2 - 1)]["tax"] * p.contribution) + group.individual_share
+            p.payoff = p.income - ( config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
 
 class results2(Page):
     
@@ -208,29 +207,12 @@ class results2(Page):
     def vars_for_template(self):
         print("in results2")
         print(self.round_number)
-        config = config_py.export_data()
+        config = Constants.config
         share = self.group.total_earnings / Constants.players_per_group
         self.player.done = True
         return{
-            'total_earnings': self.group.total_contribution * config[0][int(self.round_number / 2 - 1)]["multiplier"], 'player_earnings': share
+            'total_earnings': self.group.total_contribution * config[0][int(self.round_number-1)]["multiplier"], 'player_earnings': share
         }
-
-
-class resetPage(WaitPage):
-    def is_displayed(self):
-        return self.player.done == True
-
-
-
-    def after_all_players_arrive(self):
-        players = self.group.get_players()
-        config = config_py.export_data()
-        for p in players:
-            p.done = False
-            p.contribution = -1
-            p.income = config[0][int(self.round_number / 2 - 1)]["end"]
-
-
 
 
 
