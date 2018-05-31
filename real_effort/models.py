@@ -5,20 +5,21 @@ from otree.api import (
 from . import config as config_py
 
 doc = """
-This is a game that has 2 modes, one with transcription off and one with transcription on. 
-In mode 1, where transcription mode is off, each player has a fixed income and must
-determine how much of his/her income to report. A tax of X% is automatically collected from
-each player's reported income. The total tax collected is multiplied by a specified 
-multiplier and then divided evenly among all players in the group. Each player's total money is
-the amount of income remaining after tax is deducted from their income plus his/her share of the
-total tax money.
+This is a game that combines elements of the Public Goods game and real-effort
+transcription task into one. This game has 2 modes, one with transcription off and one 
+with transcription on. In mode 1, where transcription mode is off, each player has a 
+fixed income and must determine how much of his/her income to report. A tax of X% is
+automatically collected from each player's reported income. The total tax collected is 
+multiplied by a specified multiplier and then divided evenly among all players in the 
+group. Each player's total money is the amount of income remaining after tax is deducted 
+from their income plus his/her share of the total tax money.
 
 In mode 2, Subjects are shown two images of incomprehensible text.
 Subjects are required to transcribe (copy) the text into a text entry field.
 The quality of a subject's transcription is measured by the
 <a href="http://en.wikipedia.org/wiki/Levenshtein_distance">Levenshtein distance</a>.
 The accuracy of the players' transcription of the second image ultimately determines
-each person's endowment. The remainder of mode 2 follows mode 1.
+each person's initial income. The remainder of mode 2 follows mode 1.
 """
 
 
@@ -62,26 +63,24 @@ class Constants(BaseConstants):
     players_per_group = 2
     instructions_template = 'real_effort/Instructions.html'
 
+    # List of the incomprehensible text that the players must transcribe
     reference_texts = [
         "Revealed preference",
         "Hex ton satoha egavecen. Loh ta receso minenes da linoyiy xese coreliet ocotine! Senuh asud tu bubo tixorut sola, bo ipacape le rorisin lesiku etutale saseriec niyacin ponim na. Ri arariye senayi esoced behin? Tefid oveve duk mosar rototo buc: Leseri binin nolelar sise etolegus ibosa farare. Desac eno titeda res vab no mes!",
     ]
 
-    # num_rounds = number_game_rounds
     maxdistance1 = len(reference_texts[0])
     maxdistance2 = len(reference_texts[1])
     allowed_error_rates = [0, 0.99]
 
 
 class Subsession(BaseSubsession):
-    # to create groups of size Constants.players_per_group every round by randomly selecting
-    # Constants.players_per_group players from all players in the subsession and assigning them
-    # to a group
+    # Executed when the session is created
     def creating_session(self):
         # Shuffle players randomly so that they can end up in any group
         self.group_randomly()
 
-        # Initialization of ratio, contribution, and income values for each player
+        # Initialization of default ratio, contribution, and income values for each player
         for p in self.get_players():
             p.ratio = 1
             p.contribution = 0
@@ -89,9 +88,7 @@ class Subsession(BaseSubsession):
 
 
 class Group(BaseGroup): 
-    #  baseIncome = models.FloatField()
     baseIncome = models.CurrencyField()
-
     total_report = models.CurrencyField()
     total_contribution = models.IntegerField()
     total_earnings = models.IntegerField()
@@ -104,8 +101,6 @@ class Player(BasePlayer):
     levenshtein_distance = models.IntegerField()
     ratio = models.FloatField()     # Multiplied by base income to determine starting income
     contribution = models.IntegerField(min = 0, initial = -1)
-
-    # income = models.FloatField()
     income = models.CurrencyField()
     done = models.BooleanField()
     transcriptionDone = models.BooleanField()

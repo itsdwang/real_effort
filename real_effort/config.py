@@ -18,4 +18,3 @@ def shuffle(data):
 
 def export_data():
     return shuffle(data)
-

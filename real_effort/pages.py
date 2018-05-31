@@ -3,9 +3,11 @@ from otree.api import Currency as c, currency_range
 from .models import Constants, levenshtein, distance_and_ok
 from django.conf import settings
 
+
 class Introduction(Page):
     """Description of the game: How to play and returns expected"""
     pass
+
 
 class Transcribe(Page):
     form_model = 'player'
@@ -50,9 +52,9 @@ class Transcribe(Page):
                 return "This transcription appears to contain too many errors."
 
     def before_next_page(self):
-        """Initalize payoff to have a default value of 0"""
-
+        """Initialize payoff to have a default value of 0"""
         self.player.payoff = 0
+
 
 class Transcribe2(Page):
     form_model = 'player'
@@ -81,23 +83,23 @@ class Transcribe2(Page):
             'required_accuracy': 100 * (1 - Constants.allowed_error_rates[0]),
         }
 
-    # Initalize a default value of 0 for each player's payoff
     def before_next_page(self):
+        """Initialize payoff to have a default value of 0"""
         self.player.payoff = 0
 
 
-class Results(Page):
+class TranscribeResults(Page):
     form_model = 'player'
     form_fields = []
 
     def is_displayed(self):
-        # Don't display the Results page dispalying each player's transcription
+        # Don't display the TranscribeResults page listing each player's transcription
         # accuracy (levenshtein value) if the "transcription" value in
         # the dictionary representing this round in config.py is False
         if (Constants.config[0][self.round_number - 1]["transcription"] == False):
             return False
 
-        # Don't display this Results page for each player who has completed
+        # Don't display this TranscribeResults page for each player who has completed
         # the second transcription task
         for p in self.player.in_all_rounds():
             if(p.transcriptionDone):
@@ -111,8 +113,8 @@ class Results(Page):
         config = Constants.config
         self.player.income = config[0][self.round_number - 1]["end"]
 
-        for prev_player in self.player.in_all_rounds(): # may be causing the wrong ratio 
-        #income calculation done here
+        for prev_player in self.player.in_all_rounds():
+        # Income calculation done here
             if prev_player.transcribed_text == None:
                 prev_player.transcribed_text = ""
                 prev_player.levenshtein_distance = 0
@@ -142,11 +144,13 @@ class part2(Page):
     form_fields = ['contribution']
 
     def contribution_max(self):
-        """Dynamically sets the maximum amount of his/her income that the player can report to be their income"""
+        """Dynamically sets the maximum amount of each player's income that he/she can report"""
         return self.player.income
 
     def vars_for_template(self):
-        if self.player.ratio == 1 and Constants.config[0][self.round_number-1]["transcription"] == True:
+        # If transcription mode is set to true for this round, set the player's income according
+        # to their transcription accuracy
+        if self.player.ratio == 1 and Constants.config[0][self.round_number - 1]["transcription"] == True:
             for p in self.player.in_all_rounds():
                 if p.ratio < 1:
                     self.player.ratio = p.ratio
@@ -154,11 +158,12 @@ class part2(Page):
 
         config = Constants.config
 
-        # Displays the tax as a percentage rather than a decimal between 0 and 1
+        # Displays the tax as a percentage rather than as a decimal between 0 and 1
         self.player.ratio = round(self.player.ratio, 5)
         displaytax = config[0][self.round_number - 1]["tax"] * 100
 
-        return{'ratio': self.player.ratio, 'income': self.player.income, 'tax': displaytax, 'flag': config[0][self.round_number-1]["transcription"]}
+        return {'ratio': self.player.ratio, 'income': self.player.income, 'tax': displaytax,
+                'flag': config[0][self.round_number - 1]["transcription"]}
 
 
 class resultsWaitPage(WaitPage):
@@ -170,14 +175,14 @@ class resultsWaitPage(WaitPage):
         players = group.get_players()
         contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
         group.total_contribution = sum(contributions)
-        group.total_earnings = config[0][self.round_number-1]["multiplier"] * group.total_contribution
+        group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
         group.individual_share = group.total_earnings / Constants.players_per_group
 
         for p in players:
-            p.payoff = p.income - ( config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
+            p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
 
 
-class results2(Page):
+class TaxResults(Page):
     def is_displayed(self):
         # May cause a problem, may change to something more direct later
         return self.player.payoff != 0
@@ -187,8 +192,9 @@ class results2(Page):
         share = self.group.total_earnings / Constants.players_per_group
 
         return {
-            'total_earnings': self.group.total_contribution * config[0][int(self.round_number-1)]["multiplier"], 'player_earnings': share
+            'total_earnings': self.group.total_contribution * config[0][int(self.round_number - 1)]["multiplier"],
+            'player_earnings': share
         }
 
 
-page_sequence = [Introduction, Transcribe2, Transcribe, Results, part2, resultsWaitPage, results2]
+page_sequence = [Introduction, Transcribe2, Transcribe, TranscribeResults, part2, resultsWaitPage, TaxResults]
