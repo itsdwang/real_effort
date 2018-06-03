@@ -94,6 +94,12 @@ class Group(BaseGroup):
     total_earnings = models.IntegerField()
     individual_share = models.FloatField()
 
+    # randomly chosen player to be the authority (based on ID)
+    random_player = models.IntegerField()
+
+    # Does the authority decide to mutliply the reported income by the multiplier?
+    authority_multiply = models.BooleanField()
+
 
 class Player(BasePlayer):
     transcribed_text = models.LongStringField()

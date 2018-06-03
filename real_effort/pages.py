@@ -3,6 +3,7 @@ from otree.api import Currency as c, currency_range
 from .models import Constants, levenshtein, distance_and_ok
 from django.conf import settings
 
+import random
 
 class Introduction(Page):
     """Description of the game: How to play and returns expected"""
@@ -163,16 +164,19 @@ class part2(Page):
         displaytax = config[0][self.round_number - 1]["tax"] * 100
 
         return {'ratio': self.player.ratio, 'income': self.player.income, 'tax': displaytax,
-                'flag': config[0][self.round_number - 1]["transcription"]}
+                'flag': config[0][self.round_number - 1]["transcription"],
+                'mult': config[0][self.round_number - 1]["multiplier"]}
 
 
 class resultsWaitPage(WaitPage):
-    def after_all_players_arrive(self):
-        # Group income calculation
-        config = Constants.config
 
+
+    def after_all_players_arrive(self):
+        config = Constants.config
         group = self.group
         players = group.get_players()
+        
+        """
         contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
         group.total_contribution = sum(contributions)
         group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
@@ -180,7 +184,54 @@ class resultsWaitPage(WaitPage):
 
         for p in players:
             p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
+        """
 
+        # Generate a random player ID to determine who will be the authority
+        group.random_player = random.randint(1, Constants.players_per_group)
+        print("random player id is", group.random_player)
+
+    pass
+
+class Authority(Page):
+    form_model = 'group'
+    form_fields = ['authority_multiply']
+
+    def is_displayed(self):
+        group = self.group
+
+        if (self.player.id_in_group == group.random_player):
+            return True
+
+    def vars_for_template(self):
+        config = Constants.config
+
+        return {
+            'mult': config[0][self.round_number - 1]["multiplier"]
+        }
+    pass
+
+class AuthorityWaitPage(WaitPage):
+    def after_all_players_arrive(self):
+        config = Constants.config
+        group = self.group
+        players = group.get_players()
+
+        contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
+
+        if(group.authority_multiply):
+            group.total_contribution = config[0][self.round_number - 1]["multiplier"]* sum(contributions)
+
+        else:
+            group.total_contribution = sum(contributions)
+
+        group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
+        group.individual_share = group.total_earnings / Constants.players_per_group
+
+        for p in players:
+            p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
+
+        print("did authority decide to multiply: ", group.authority_multiply)
+    pass
 
 class TaxResults(Page):
     def is_displayed(self):
@@ -197,4 +248,5 @@ class TaxResults(Page):
         }
 
 
-page_sequence = [Introduction, Transcribe2, Transcribe, TranscribeResults, part2, resultsWaitPage, TaxResults]
+page_sequence = [Introduction, Transcribe2, Transcribe, TranscribeResults, part2, resultsWaitPage,
+                 Authority, AuthorityWaitPage, TaxResults]

@@ -5,8 +5,8 @@ import random
 data = [
     [ 
         {"end": 1000, "multiplier": 2, "tax": 0.1, "transcription": False },
-        {"end": 2000, "multiplier": 2, "tax": 0.2, "transcription": True },
-        {"end": 3000, "multiplier": 2, "tax": 0.3, "transcription": True }
+        {"end": 2000, "multiplier": 3, "tax": 0.2, "transcription": True },
+        {"end": 3000, "multiplier": 4, "tax": 0.3, "transcription": True }
     ]
 ]
 

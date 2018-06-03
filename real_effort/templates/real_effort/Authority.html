@@ -1,0 +1,18 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Authority
+{% endblock %}
+
+{% block content %}
+    <p>Congratulations! You have been randomly selected to be the authority within your group.
+    You have the power to multiply the total reported income of the participants within your group by
+    {{ mult }}. Do you wish to do so? </p>
+
+    <div>
+        <button name="authority_multiply" value="True" class="btn btn-primary btn-large">Yes</button>
+        <button name="authority_multiply" value="False" class="btn btn-primary btn-large">No</button>
+    </div>
+
+{% endblock %}
