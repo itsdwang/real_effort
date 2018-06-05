@@ -97,8 +97,13 @@ class Group(BaseGroup):
     # randomly chosen player to be the authority (based on ID)
     random_player = models.IntegerField()
 
-    # Does the authority decide to mutliply the reported income by the multiplier?
+    # Does the authority decide to multiply the reported income by the multiplier?
+    # This applies to both mode 1 and mode 2 choice 1, should change this var name later
     authority_multiply = models.BooleanField()
+
+    # Does the authority decide on mode 2 choice (appropriate a percentage of the money for
+    # him/herself)?
+    auth_appropriate = models.BooleanField()
 
 
 class Player(BasePlayer):

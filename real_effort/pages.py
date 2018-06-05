@@ -169,13 +169,11 @@ class part2(Page):
 
 
 class resultsWaitPage(WaitPage):
-
-
     def after_all_players_arrive(self):
         config = Constants.config
         group = self.group
         players = group.get_players()
-        
+
         """
         contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
         group.total_contribution = sum(contributions)
@@ -197,18 +195,47 @@ class Authority(Page):
     form_fields = ['authority_multiply']
 
     def is_displayed(self):
+        config = Constants.config
         group = self.group
 
-        if (self.player.id_in_group == group.random_player):
+        mode_num = config[0][self.round_number - 1]["mode"]
+
+        if (mode_num == 1 and self.player.id_in_group == group.random_player):
             return True
 
     def vars_for_template(self):
         config = Constants.config
 
         return {
-            'mult': config[0][self.round_number - 1]["multiplier"]
+            'mult': config[0][self.round_number - 1]["multiplier"],
         }
     pass
+
+class Authority2(Page):
+    form_model = 'group'
+    form_fields = ['auth_appropriate']
+
+    def is_displayed(self):
+        config = Constants.config
+        group = self.group
+
+        mode_num = config[0][self.round_number - 1]["mode"]
+
+        if (mode_num == 2 and self.player.id_in_group == group.random_player):
+            return True
+
+    def vars_for_template(self):
+        config = Constants.config
+
+        displaytax = config[0][self.round_number - 1]["tax"] * 100
+
+        return {
+            'mult': config[0][self.round_number - 1]["multiplier"],
+            'tax': displaytax
+        }
+
+    pass
+
 
 class AuthorityWaitPage(WaitPage):
     def after_all_players_arrive(self):
@@ -216,19 +243,61 @@ class AuthorityWaitPage(WaitPage):
         group = self.group
         players = group.get_players()
 
-        contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
+        mode_num = config[0][self.round_number - 1]["mode"]
 
-        if(group.authority_multiply):
-            group.total_contribution = config[0][self.round_number - 1]["multiplier"]* sum(contributions)
+        # NOTE: the code below can definitely be refactored (get rid of duplicate code), but I just want to see if
+        # the functionality is correct first
+        if(mode_num == 1 and group.authority_multiply):
+            contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
+            group.total_contribution = config[0][self.round_number - 1]["multiplier"] * sum(contributions)
+            group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
+            group.individual_share = group.total_earnings / Constants.players_per_group
 
-        else:
+            for p in players:
+                p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
+
+        elif(mode_num == 1 and not group.authority_multiply):
+            contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
             group.total_contribution = sum(contributions)
+            group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
+            group.individual_share = group.total_earnings / Constants.players_per_group
 
-        group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
-        group.individual_share = group.total_earnings / Constants.players_per_group
+            for p in players:
+                p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
 
-        for p in players:
-            p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
+        elif(mode_num == 2 and not group.auth_appropriate):
+            # same as content in first if statement block
+            contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
+            group.total_contribution = config[0][self.round_number - 1]["multiplier"] * sum(contributions)
+            group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
+            group.individual_share = group.total_earnings / Constants.players_per_group
+
+            for p in players:
+                p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
+        # Mode 2, Authority 2, Button 2
+        else:
+            contributions = [p.contribution for p in players]
+            
+            """
+            contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
+            group.total_contribution = config[0][self.round_number - 1]["multiplier"] * sum(contributions)
+            appropriation = config[0][int(self.round_number - 1)]["tax"] * group.total_contribution
+            group.total_contribution -= appropriation
+            group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
+            group.individual_share = group.total_earnings / Constants.players_per_group
+            """
+
+            print("group.total_contribution after subtracting appropriation is: ", group.total_contribution)
+            print("appropriation is: ", appropriation)
+            print("group.total_earnings is: ", group.total_earnings)
+            print("group.individual_share is: ", group.individual_share)
+
+            for p in players:
+                if (p.id_in_group == group.random_player):
+                    p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
+                    p.payoff += appropriation
+                else:
+                    p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
 
         print("did authority decide to multiply: ", group.authority_multiply)
     pass
@@ -249,4 +318,4 @@ class TaxResults(Page):
 
 
 page_sequence = [Introduction, Transcribe2, Transcribe, TranscribeResults, part2, resultsWaitPage,
-                 Authority, AuthorityWaitPage, TaxResults]
+                 Authority, Authority2, AuthorityWaitPage, TaxResults]
