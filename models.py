@@ -68,6 +68,14 @@ class Constants(BaseConstants):
         "Revealed preference",
         "Hex ton satoha egavecen. Loh ta receso minenes da linoyiy xese coreliet ocotine! Senuh asud tu bubo tixorut sola, bo ipacape le rorisin lesiku etutale saseriec niyacin ponim na. Ri arariye senayi esoced behin? Tefid oveve duk mosar rototo buc: Leseri binin nolelar sise etolegus ibosa farare. Desac eno titeda res vab no mes!",
     ]
+    decisions = [
+        "not modify the income multiplier.",
+        "increase the income multiplier to ",
+        " and appropriate an extra ",
+        " percent of the income to themselves."
+        ]
+
+
 
     maxdistance1 = len(reference_texts[0])
     maxdistance2 = len(reference_texts[1])
@@ -93,6 +101,7 @@ class Group(BaseGroup):
     total_contribution = models.IntegerField()
     total_earnings = models.IntegerField()
     individual_share = models.FloatField()
+    temp = models.IntegerField()
 
     # randomly chosen player to be the authority (based on ID)
     random_player = models.IntegerField()
