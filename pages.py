@@ -277,15 +277,15 @@ class AuthorityWaitPage(WaitPage):
         # Mode 2, Authority 2, Button 2
         else:
             contributions = [p.contribution for p in players]
-            
-            """
+
+
             contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
             group.total_contribution = config[0][self.round_number - 1]["multiplier"] * sum(contributions)
             appropriation = config[0][int(self.round_number - 1)]["tax"] * group.total_contribution
             group.total_contribution -= appropriation
             group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
             group.individual_share = group.total_earnings / Constants.players_per_group
-            """
+            
 
             print("group.total_contribution after subtracting appropriation is: ", group.total_contribution)
             print("appropriation is: ", appropriation)
