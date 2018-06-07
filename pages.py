@@ -158,6 +158,7 @@ class part2(Page):
                 if p.ratio < 1:
                     self.player.ratio = p.ratio
                     self.player.income *= self.player.ratio
+                    break
 
         config = Constants.config
 
