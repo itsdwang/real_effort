@@ -5,10 +5,17 @@
     Authority Information
 {% endblock %}
 {% block content %}
-
-    <p>
+	{% if player.spanish %}
+        <p>
+        spanish: Another player was selected to be the "Authority". They decided to {{ decision }} 
+    	</p>
+    {% else %}
+        <p>
         Another player was selected to be the "Authority". They decided to {{ decision }} 
-    </p>
+    	</p>
+    {% endif %}
+
+    
 
 
 

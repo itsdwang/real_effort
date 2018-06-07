@@ -6,8 +6,13 @@
 {% endblock %}
 
 {% block content %}
-
-    <p>
+    {% if player.spanish %}
+        <p> spanish text</p>
+        <p>  tax rate is {{ tax }}%.</p>
+        <p> asdfasdfadf multiplied by {{ mult }}, asdfasfd
+        </p>
+    {% else %}
+        <p>
         Decide how much income to report for taxes. Your income is {{ income }}: based on your performance in the
         previous transcription task, which multiplied your income by {{ ratio }}
     </p>
@@ -16,6 +21,9 @@
         all players (even those who reported no income. Your total money is the amount of income you have remaining
         after tax is taken out, plus your share of the total tax money.
     </p>
+    {% endif %}
+
+    
 
 
     {% formfield player.contribution label="How much income will you report?" %}

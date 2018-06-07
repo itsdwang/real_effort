@@ -122,6 +122,7 @@ class Player(BasePlayer):
     ratio = models.FloatField()     # Multiplied by base income to determine starting income
     contribution = models.IntegerField(min = 0, initial = -1)
     income = models.CurrencyField()
+    spanish = models.BooleanField()
     done = models.BooleanField()
     transcriptionDone = models.BooleanField()
     payoff = models.FloatField()

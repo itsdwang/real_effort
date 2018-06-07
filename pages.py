@@ -6,6 +6,8 @@ from django.conf import settings
 import random
 
 class Introduction(Page):
+    form_model = 'player'
+    form_fields = ['spanish']
     """Description of the game: How to play and returns expected"""
     pass
 
