@@ -312,9 +312,11 @@ class AuthorityWaitPage(WaitPage):
                 p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
         # Mode 2, Authority 2, Button 2
         else:
-            contributions = [p.contribution for p in players]
-            group.total_contribution = sum(contributions) * config[0][int(self.round_number - 1)]["tax"]
-            
+            # contributions = [p.contribution for p in players]
+            contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
+            # group.total_contribution = sum(contributions) * config[0][int(self.round_number - 1)]["tax"]
+            group.total_contribution = config[0][self.round_number - 1]["multiplier"] * sum(contributions)
+
             group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
             appropriation = config[0][int(self.round_number - 1)]["tax"] * group.total_earnings
             group.individual_share = group.total_earnings / Constants.players_per_group
@@ -331,6 +333,7 @@ class AuthorityWaitPage(WaitPage):
                     p.payoff += appropriation
                 else:
                     p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
+                    # p.payoff -= appropriation / (len(players) - 1)
                     p.payoff -= appropriation / (len(players) - 1)
 
         print("did authority decide to multiply: ", group.authority_multiply)
