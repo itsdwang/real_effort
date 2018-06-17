@@ -173,6 +173,7 @@ class part2(Page):
                     self.player.ratio = p.ratio
                     print("player income before is:", self.player.income)
                     self.player.income *= self.player.ratio
+                    break
 
                     print("player income after is:", self.player.income)
         """
