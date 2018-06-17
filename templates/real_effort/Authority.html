@@ -2,28 +2,28 @@
 {% load otree static %}
 
 {% block title %}
-    Authority 1
+    Authority
 {% endblock %}
 
 {% block content %}
 {% if player.spanish %}
-    <p>spanish Congratulations! You have been randomly selected to be the authority within your group.
-    You have the power to multiply the total reported income of the participants within your group by
-    {{ mult }}. Do you wish to do so? </p>
+    <p>
+        spanish You have been randomly selected to be the authority within your group and have been granted the power to
+        multiply the total taxed income of the participants within your group by {{ mult }}.
+    </p>
 
     {% else %}
-        <p>Congratulations! You have been randomly selected to be the authority within your group.
-    You have the power to multiply the total reported income of the participants within your group by
-    {{ mult }}. Do you wish to do so? </p>
-
-    
-
+        <p>
+            You have been randomly selected to be the authority within your group and have been granted the power to
+            multiply the total taxed income of the participants within your group by {{ mult }}.
+        </p>
     {% endif %}
 
 
     <div>
-        <button name="authority_multiply" value="True" class="btn btn-primary btn-large">Yes</button>
-        <button name="authority_multiply" value="False" class="btn btn-primary btn-large">No</button>
+        <button name="authority_multiply" value="True" class="btn btn-primary btn-large">Multiply</button>
+
+        <!-- <button name="authority_multiply" value="False" class="btn btn-primary btn-large">No</button> -->
     </div>
 
 {% endblock %}

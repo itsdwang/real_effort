@@ -9,8 +9,12 @@ class Introduction(Page):
     form_model = 'player'
     form_fields = ['spanish']
     """Description of the game: How to play and returns expected"""
-    pass
 
+    def is_displayed(self):
+        if (self.round_number == 1):
+            return True
+
+        return False
 
 class Transcribe(Page):
     form_model = 'player'
@@ -132,6 +136,7 @@ class TranscribeResults(Page):
 
             self.player.ratio = 1 - prev_player.levenshtein_distance / Constants.maxdistance2
             self.player.income *= self.player.ratio
+            print("inside transcribe results, player income is")
 
             table_rows.append(row)
 
@@ -153,21 +158,37 @@ class part2(Page):
     def vars_for_template(self):
         # If transcription mode is set to true for this round, set the player's income according
         # to their transcription accuracy
-        if self.player.ratio == 1 and Constants.config[0][self.round_number - 1]["transcription"] == True:
+        config = Constants.config
+        endowment = config[0][self.round_number - 1]["end"]
+        transcribe_on = config[0][self.round_number - 1]["transcription"]
+
+        # Is this needed? - What is the purpose?
+        print("endowment is", endowment)
+        print("player income after is:", self.player.income)
+
+        """
+        if self.player.ratio == 1 and Constants.config[0][self.round_number - 1]["transcription"] == False:
             for p in self.player.in_all_rounds():
                 if p.ratio < 1:
                     self.player.ratio = p.ratio
+                    print("player income before is:", self.player.income)
                     self.player.income *= self.player.ratio
 
-        config = Constants.config
+                    print("player income after is:", self.player.income)
+        """
 
         # Displays the tax as a percentage rather than as a decimal between 0 and 1
         self.player.ratio = round(self.player.ratio, 5)
         displaytax = config[0][self.round_number - 1]["tax"] * 100
 
+        display_ratio = self.player.ratio * 100
+        display_income = int(self.player.income)
+
         return {'ratio': self.player.ratio, 'income': self.player.income, 'tax': displaytax,
                 'flag': config[0][self.round_number - 1]["transcription"],
-                'mult': config[0][self.round_number - 1]["multiplier"]}
+                'mult': config[0][self.round_number - 1]["multiplier"],
+                'display_ratio': display_ratio, 'endowment': endowment,
+                'display_income': display_income, 'transcribe_on': transcribe_on}
 
 
 class resultsWaitPage(WaitPage):
@@ -175,6 +196,21 @@ class resultsWaitPage(WaitPage):
         config = Constants.config
         group = self.group
         players = group.get_players()
+
+        # total_reported_income = 0
+
+
+        # for p in players:
+            # group.total_reported_income += p.contribution
+
+        # print("total reported income is: ", group.total_reported_income)
+
+        # Will modify others_total_reported income to get average of other participants reported income
+        # in
+        """
+        for t in players:
+            t.others_total_reported_income = total_reported_income
+        """
 
         """
         contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
@@ -191,6 +227,7 @@ class resultsWaitPage(WaitPage):
         print("random player id is", group.random_player)
 
     pass
+
 
 class Authority(Page):
     form_model = 'group'
@@ -212,6 +249,8 @@ class Authority(Page):
             'mult': config[0][self.round_number - 1]["multiplier"],
         }
     pass
+
+
 class AuthorityInfo(Page):
     def is_displayed(self):
         config = Constants.config
@@ -241,12 +280,6 @@ class AuthorityInfo(Page):
         return {"decision": decision}
 
 
-
-
-
-
-
-
 class Authority2(Page):
     form_model = 'group'
     form_fields = ['auth_appropriate']
@@ -269,8 +302,7 @@ class Authority2(Page):
             'mult': config[0][self.round_number - 1]["multiplier"],
             'tax': displaytax
         }
-
-    pass
+        pass
 
 
 class AuthorityWaitPage(WaitPage):
@@ -339,6 +371,7 @@ class AuthorityWaitPage(WaitPage):
         print("did authority decide to multiply: ", group.authority_multiply)
     pass
 
+
 class TaxResults(Page):
     def is_displayed(self):
         # May cause a problem, may change to something more direct later
@@ -346,12 +379,38 @@ class TaxResults(Page):
 
     def vars_for_template(self):
         config = Constants.config
+        group = self.group
+        player = self.player
+        players = group.get_players()
         share = self.group.total_earnings / Constants.players_per_group
+        multiplier = config[0][self.round_number - 1]["multiplier"]
+        others_avg_income = 0
 
+        total_tax_contribution = sum([p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players])
+
+        for p in players:
+            others_avg_income += p.contribution
+
+        others_avg_income -= player.contribution
+        others_avg_income /= (Constants.players_per_group - 1)
+
+        appropriation = 0
+        tax = config[0][int(self.round_number - 1)]["tax"]
+        display_tax = tax * 100
+
+        if group.auth_appropriate:
+            appropriation = tax * group.total_earnings
 
         return {
             'total_earnings': self.group.total_earnings,
-            'player_earnings': share
+            'player_earnings': share,
+            'avg_income': others_avg_income,
+            'num_other_players': Constants.players_per_group - 1,
+            'total_tax_contribution': total_tax_contribution,
+            'multiplier': multiplier,
+            'appropriation': appropriation,
+            'tax': tax,
+            'display_tax': display_tax,
         }
 
 

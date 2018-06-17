@@ -68,14 +68,13 @@ class Constants(BaseConstants):
         "Revealed preference",
         "Hex ton satoha egavecen. Loh ta receso minenes da linoyiy xese coreliet ocotine! Senuh asud tu bubo tixorut sola, bo ipacape le rorisin lesiku etutale saseriec niyacin ponim na. Ri arariye senayi esoced behin? Tefid oveve duk mosar rototo buc: Leseri binin nolelar sise etolegus ibosa farare. Desac eno titeda res vab no mes!",
     ]
+
     decisions = [
         "not modify the income multiplier.",
         "increase the income multiplier to ",
         " and appropriate an extra ",
         " percent of the income to themselves."
-        ]
-
-
+    ]
 
     maxdistance1 = len(reference_texts[0])
     maxdistance2 = len(reference_texts[1])
@@ -93,6 +92,8 @@ class Subsession(BaseSubsession):
             p.ratio = 1
             p.contribution = 0
             p.income = Constants.config[0][self.round_number - 1]["end"]
+
+        # self.group.total_reported_income = 0
 
 
 class Group(BaseGroup): 
@@ -114,6 +115,7 @@ class Group(BaseGroup):
     # him/herself)?
     auth_appropriate = models.BooleanField()
 
+    total_reported_income = models.CurrencyField()
 
 class Player(BasePlayer):
     transcribed_text = models.LongStringField()
@@ -126,3 +128,5 @@ class Player(BasePlayer):
     done = models.BooleanField()
     transcriptionDone = models.BooleanField()
     payoff = models.FloatField()
+
+    # others_total_reported_income = models.CurrencyField()
