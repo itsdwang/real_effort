@@ -2,8 +2,36 @@ from ._builtin import Page, WaitPage
 from otree.api import Currency as c, currency_range
 from .models import Constants, levenshtein, distance_and_ok
 from django.conf import settings
-
+from PIL import Image, ImageDraw, ImageFont
+import math
 import random
+
+def writeText(text, fileName): 
+    image = Image.open('real_effort/background.png')
+    draw = ImageDraw.Draw(image)
+    font = ImageFont.truetype('real_effort/Roboto-Regular.ttf', size=12)
+    imageChars = 50
+    numLines = len(text) / imageChars
+    numLines = int(math.ceil(numLines))
+    lines = []
+    for i in range(numLines):
+        if(imageChars * (i + 1) < len(text)):
+            lines.append(text[imageChars * i : imageChars * (i+1)])
+        else:
+            lines.append(text[imageChars * i : len(text)])
+
+            
+
+    for i in range(numLines):
+        (x, y) = (10, 20 * i)
+        message = lines[i]
+        color = 'rgb(0, 0, 0)' # black color
+        draw.text((x, y), message, fill=color, font=font)
+
+    image.save(fileName)
+
+
+
 
 class Introduction(Page):
     form_model = 'player'
@@ -31,10 +59,13 @@ class Transcribe(Page):
         for p in self.player.in_all_rounds():
             if(p.transcriptionDone):
                 return False
+        print("IN TRANSCRIBE")
 
         return True
 
     def vars_for_template(self):
+
+        writeText("test for transcribe page #21983401-29384-129834-1283-4182-304981-2384-12348", 'real_effort/static/real_effort/paragraphs/{}.png'.format(2))
         return {
             'image_path': 'real_effort/paragraphs/{}.png'.format(2), 
             'reference_text': Constants.reference_texts[1],
@@ -82,7 +113,9 @@ class Transcribe2(Page):
 
         return True
 
+
     def vars_for_template(self):
+        writeText("Test for transcribe page #1 lak;sjdfl;aksjdfl;aksjdfl;kjasdl;fkjals;dkfja;sldkjf;alskjdf;ajksdf;lajk;", 'real_effort/static/real_effort/paragraphs/{}.png'.format(1))
         return {
             'image_path': 'real_effort/paragraphs/{}.png'.format(1),
             'reference_text': Constants.reference_texts[0],
