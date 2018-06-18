@@ -94,8 +94,6 @@ class Subsession(BaseSubsession):
             p.contribution = 0
             p.income = Constants.config[0][self.round_number - 1]["end"]
 
-        # self.group.total_reported_income = 0
-
 
 class Group(BaseGroup): 
     baseIncome = models.CurrencyField()
@@ -116,7 +114,6 @@ class Group(BaseGroup):
     # him/herself)?
     auth_appropriate = models.BooleanField()
     total_reported_income = models.CurrencyField()
-
     appropriation = models.CurrencyField()
 
 
@@ -131,5 +128,3 @@ class Player(BasePlayer):
     done = models.BooleanField()
     transcriptionDone = models.BooleanField()
     payoff = models.FloatField()
-
-    # others_total_reported_income = models.CurrencyField()

@@ -2,11 +2,10 @@
 {% load otree static %}
 
 {% block title %}
-    Transcription task {{ subsession.round_number }}/{{ Constants.num_rounds }}
+    Transcription Task ({{ pgCode }})
 {% endblock %}
 
 {% block content %}
-
     {% if player.spanish %}
         <p> spanish text</p>
     {% else %}
