@@ -20,8 +20,6 @@ def writeText(text, fileName):
         else:
             lines.append(text[imageChars * i : len(text)])
 
-            
-
     for i in range(numLines):
         (x, y) = (10, 20 * i)
         message = lines[i]
@@ -29,8 +27,6 @@ def writeText(text, fileName):
         draw.text((x, y), message, fill=color, font=font)
 
     image.save(fileName)
-
-
 
 
 class Introduction(Page):
@@ -64,8 +60,8 @@ class Transcribe(Page):
         return True
 
     def vars_for_template(self):
-
         writeText("test for transcribe page #21983401-29384-129834-1283-4182-304981-2384-12348", 'real_effort/static/real_effort/paragraphs/{}.png'.format(2))
+
         return {
             'image_path': 'real_effort/paragraphs/{}.png'.format(2), 
             'reference_text': Constants.reference_texts[1],
@@ -147,7 +143,6 @@ class TranscribeResults(Page):
 
         return True
 
-
     def vars_for_template(self):
         table_rows = []
         config = Constants.config
@@ -173,6 +168,7 @@ class TranscribeResults(Page):
 
             table_rows.append(row)
 
+        print("inside transcriberesults varsfortemplate")
         return {'table_rows': table_rows}
 
     def before_next_page(self):
@@ -231,9 +227,6 @@ class resultsWaitPage(WaitPage):
         group = self.group
         players = group.get_players()
 
-        # total_reported_income = 0
-
-
         # for p in players:
             # group.total_reported_income += p.contribution
 
@@ -259,7 +252,6 @@ class resultsWaitPage(WaitPage):
         # Generate a random player ID to determine who will be the authority
         group.random_player = random.randint(1, Constants.players_per_group)
         print("random player id is", group.random_player)
-
     pass
 
 
@@ -309,7 +301,7 @@ class AuthorityInfo(Page):
         elif(mode_num == 2 and not group.auth_appropriate):
             decision = Constants.decisions[1] + " " + str(config[0][self.round_number - 1]["multiplier"]) + " ."
         else:
-            decision = Constants.decisions[1]  + " " + str(config[0][self.round_number - 1]["multiplier"]) + Constants.decisions[2] + str(config[0][self.round_number - 1]["tax"] * 100) + Constants.decisions[3]
+            decision = Constants.decisions[1] + " " + str(config[0][self.round_number - 1]["multiplier"]) + Constants.decisions[2] + str(config[0][self.round_number - 1]["tax"] * 100) + Constants.decisions[3]
 
         return {"decision": decision}
 
@@ -336,6 +328,7 @@ class Authority2(Page):
             'mult': config[0][self.round_number - 1]["multiplier"],
             'tax': displaytax
         }
+
         pass
 
 
@@ -351,13 +344,16 @@ class AuthorityWaitPage(WaitPage):
         # the functionality is correct first
         if(mode_num == 1 and group.authority_multiply):
             contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
+
             group.total_contribution = config[0][self.round_number - 1]["multiplier"] * sum(contributions)
-            group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
+            group.total_earnings = group.total_contribution
+
             group.individual_share = group.total_earnings / Constants.players_per_group
 
             for p in players:
                 p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
 
+        # This below else if statement should never be executed
         elif(mode_num == 1 and not group.authority_multiply):
             contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
             group.total_contribution = sum(contributions)
@@ -368,39 +364,40 @@ class AuthorityWaitPage(WaitPage):
                 p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
 
         elif(mode_num == 2 and not group.auth_appropriate):
-            # same as content in first if statement block
             contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
+
             group.total_contribution = config[0][self.round_number - 1]["multiplier"] * sum(contributions)
-            group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
+            group.total_earnings = group.total_contribution
+
             group.individual_share = group.total_earnings / Constants.players_per_group
 
             for p in players:
-                p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
+                p.payoff = p.income - (
+                            config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
+
         # Mode 2, Authority 2, Button 2
         else:
-            # contributions = [p.contribution for p in players]
             contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
-            # group.total_contribution = sum(contributions) * config[0][int(self.round_number - 1)]["tax"]
-            group.total_contribution = config[0][self.round_number - 1]["multiplier"] * sum(contributions)
 
-            group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
-            appropriation = config[0][int(self.round_number - 1)]["tax"] * group.total_earnings
+            group.total_contribution = config[0][self.round_number - 1]["multiplier"] * sum(contributions)
+            group.total_earnings = group.total_contribution
+
+            group.appropriation = config[0][int(self.round_number - 1)]["tax"] * group.total_contribution
+            group.total_earnings -= group.appropriation
             group.individual_share = group.total_earnings / Constants.players_per_group
             
-
-            print("group.total_contribution after subtracting appropriation is: ", group.total_contribution)
-            print("appropriation is: ", appropriation)
+            print("multiplier is: ", config[0][self.round_number - 1]["multiplier"])
+            print("group.total_contribution: ", group.total_contribution)
+            print("appropriation is: ", group.appropriation)
             print("group.total_earnings is: ", group.total_earnings)
             print("group.individual_share is: ", group.individual_share)
 
             for p in players:
                 if (p.id_in_group == group.random_player):
                     p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
-                    p.payoff += appropriation
+                    p.payoff += group.appropriation
                 else:
                     p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
-                    # p.payoff -= appropriation / (len(players) - 1)
-                    p.payoff -= appropriation / (len(players) - 1)
 
         print("did authority decide to multiply: ", group.authority_multiply)
     pass
@@ -428,12 +425,8 @@ class TaxResults(Page):
         others_avg_income -= player.contribution
         others_avg_income /= (Constants.players_per_group - 1)
 
-        appropriation = 0
         tax = config[0][int(self.round_number - 1)]["tax"]
         display_tax = tax * 100
-
-        if group.auth_appropriate:
-            appropriation = tax * group.total_earnings
 
         return {
             'total_earnings': self.group.total_earnings,
@@ -442,7 +435,7 @@ class TaxResults(Page):
             'num_other_players': Constants.players_per_group - 1,
             'total_tax_contribution': total_tax_contribution,
             'multiplier': multiplier,
-            'appropriation': appropriation,
+            'appropriation': group.appropriation,
             'tax': tax,
             'display_tax': display_tax,
         }

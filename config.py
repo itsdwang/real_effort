@@ -6,7 +6,8 @@ data = [
     [ 
         {"end": 1000, "multiplier": 2, "tax": 0.1, "transcription": True, "mode": 1},
         {"end": 2000, "multiplier": 3, "tax": 0.2, "transcription": True, "mode": 2},
-        {"end": 3000, "multiplier": 4, "tax": 0.3, "transcription": True, "mode": 1}
+        {"end": 3000, "multiplier": 4, "tax": 0.3, "transcription": True, "mode": 1},
+        {"end": 4000, "multiplier": 2, "tax": 0.25,"transcription": True, "mode": 2}
     ]
 ]
 

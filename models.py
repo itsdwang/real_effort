@@ -70,8 +70,8 @@ class Constants(BaseConstants):
     ]
 
     decisions = [
-        "not modify the income multiplier.",
-        "increase the income multiplier to ",
+        "not modify the taxed income multiplier.",
+        "increase the taxed income multiplier to ",
         " and appropriate an extra ",
         " percent of the income to themselves."
     ]
@@ -114,8 +114,10 @@ class Group(BaseGroup):
     # Does the authority decide on mode 2 choice (appropriate a percentage of the money for
     # him/herself)?
     auth_appropriate = models.BooleanField()
-
     total_reported_income = models.CurrencyField()
+
+    appropriation = models.CurrencyField()
+
 
 class Player(BasePlayer):
     transcribed_text = models.LongStringField()
