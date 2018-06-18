@@ -89,6 +89,22 @@ class Transcribe(Page):
         """Initialize payoff to have a default value of 0"""
         self.player.payoff = 0
 
+        config = Constants.config
+        self.player.income = config[0][self.round_number - 1]["end"]
+
+        for prev_player in self.player.in_all_rounds():
+            # Income calculation done here
+            if prev_player.transcribed_text == None:
+                prev_player.transcribed_text = ""
+                prev_player.levenshtein_distance = 0
+
+            self.player.ratio = 1 - prev_player.levenshtein_distance / Constants.maxdistance2
+            self.player.income *= self.player.ratio
+            print("inside transcribe results, player income is")
+
+        print("inside transcribe2 before_next_page")
+        self.player.transcriptionDone = True
+
 
 class Transcribe2(Page):
     form_model = 'player'
@@ -124,6 +140,7 @@ class Transcribe2(Page):
         self.player.payoff = 0
 
 
+"""
 class TranscribeResults(Page):
     form_model = 'player'
     form_fields = []
@@ -174,7 +191,7 @@ class TranscribeResults(Page):
     def before_next_page(self):
         # Disables transcription for the rest of the game
         self.player.transcriptionDone = True
-
+"""
 
 class part2(Page):
     form_model = 'player'
@@ -440,6 +457,10 @@ class TaxResults(Page):
             'display_tax': display_tax,
         }
 
-
+"""
 page_sequence = [Introduction, Transcribe2, Transcribe, TranscribeResults, part2, resultsWaitPage,
+                 Authority,  Authority2, AuthorityWaitPage, AuthorityInfo, TaxResults]
+"""
+
+page_sequence = [Introduction, Transcribe2, Transcribe, part2, resultsWaitPage,
                  Authority,  Authority2, AuthorityWaitPage, AuthorityInfo, TaxResults]

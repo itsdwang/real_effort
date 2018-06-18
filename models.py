@@ -62,6 +62,7 @@ class Constants(BaseConstants):
     num_rounds = len(config[0])
     players_per_group = 2
     instructions_template = 'real_effort/Instructions.html'
+    info_code = 'real_effort/Code.html'
 
     # List of the incomprehensible text that the players must transcribe
     reference_texts = [
