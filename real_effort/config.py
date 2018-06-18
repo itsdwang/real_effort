@@ -1,16 +1,13 @@
-# format: endowment, multiplier, tax, transcription
 import random
+
+# Dictionary Format: endowment, multiplier, tax, transcription
+# Each dictionary entry represents the data values for 1 round
 data = [
     [ 
-        {"end": 1000, "multiplier": 2, "tax": 0.1, "transcription": True },
-        {"end": 2000, "multiplier": 2, "tax": 0.2, "transcription": True },
-        {"end": 3000, "multiplier": 2, "tax": 0.3, "transcription": True }
-    ]   
-
-
-
-
-    
+        {"end": 1000, "multiplier": 2, "tax": 0.1, "transcription": True, "mode": 1},
+        {"end": 2000, "multiplier": 3, "tax": 0.2, "transcription": True, "mode": 2},
+        {"end": 3000, "multiplier": 4, "tax": 0.3, "transcription": True, "mode": 1}
+    ]
 ]
 
 def shuffle(data):
@@ -21,4 +18,3 @@ def shuffle(data):
 
 def export_data():
     return shuffle(data)
-

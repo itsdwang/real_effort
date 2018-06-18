@@ -1,0 +1,129 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Period Results
+{% endblock %}
+
+{% block content %}
+    {% if player.spanish %}
+        <table class="table-condensed" style="width:500px; margin-top:20px;">
+        <tr>
+            <td>Spanish: You reported income of:</td>
+            <td>{{ player.contribution }}</td>
+        </tr>
+
+        <tr>
+            <td>Other participants reported income of:</td>
+            <td></td>
+        </tr>
+        {% for p in player.get_others_in_group %}
+            <tr>
+                <td></td>
+                <td>{{ p.contribution }}</td>
+            </tr>
+        {% endfor %}
+
+         <tr>
+             <td>The other participants reported an average income of:</td>
+             <td>{{ avg_income }}</td>
+         </tr>
+
+        <tr>
+            <td>Total tax contribution (tax rate multiplied by total reported income):</td>
+            <td>{{ group.total_contribution }}</td>
+        </tr>
+
+        <tr>
+            <td colspan="2"><hr/></td>
+        </tr>
+
+        <tr>
+            <td>Total earnings:</td>
+            <td>{{ total_earnings }}</td>
+        </tr>
+        <tr><td>Your earnings:</td><td>{{ player_earnings }}</td></tr>
+
+        <tr><td colspan="2"><hr/></td></tr>
+
+        <tr><td>Thus in total you earned:</td><td>{{ player.payoff }}</td></tr>
+
+    </table>
+    <p></p>
+    {% else %}
+        <table class="table-condensed" style="width:800px; margin-top:20px;">
+        <tr>
+            <td>You reported income of:</td>
+            <td>{{ player.contribution }}</td>
+        </tr>
+
+         <!--
+        <tr>
+            <td>Other participants reported income of:</td>
+            <td></td>
+        </tr>
+        {% for p in player.get_others_in_group %}
+            <tr>
+                <td></td>
+                <td>{{ p.contribution }}</td>
+            </tr>
+        {% endfor %}
+        -->
+
+         <tr>
+             <td>The other {{ num_other_players }} participants reported an average income of:</td>
+             <td>{{ avg_income }}</td>
+         </tr>
+
+        <tr>
+            <td>Total tax contribution (tax rate multiplied by total reported income):</td>
+            <td>{{ total_tax_contribution }}</td>
+        </tr>
+
+        <tr>
+            <td>Group money (Total tax contribution multiplied by {{ multiplier }}): </td>
+            <td>{{ group.total_contribution }}</td>
+        </tr>
+        <tr>
+            <td colspan="2"><hr/></td>
+        </tr>
+
+        <tr>
+            <td>Money appropriated by authority ({{display_tax}}% of the Group money):</td>
+            <td>{{ appropriation }}</td>
+        </tr>
+
+        <tr>
+            <td colspan="2"><hr/></td>
+        </tr>
+
+        <tr>
+            <td>Money distributed equally among group members:</td>
+            <td>{{ total_earnings }}</td>
+        </tr>
+
+    <!--
+        <tr>
+            <td>Your earnings:</td>
+            <td>{{ player_earnings }}</td>
+        </tr>
+    -->
+
+        <tr><td colspan="2"><hr/></td></tr>
+
+        <tr>
+            <td>Your payoff for this period is:</td>
+            <td colspan="2">Task Income - Reported Income * Tax rate + Share of group money</td>
+        </tr>
+        <tr>
+            <td>{{ player.income }} - {{ player.contribution }} * {{ tax }} + {{ player_earnings }}</td>
+            <td>{{ player.payoff }}</td>
+        </tr>
+
+    </table>
+    <p></p>
+    {% endif %}
+
+    {% next_button %}
+
+{% endblock %}

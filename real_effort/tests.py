@@ -5,7 +5,6 @@ from .models import Constants
 
 
 class PlayerBot(Bot):
-
     def play_round(self):
         # must reject transcription that is too inaccurate
         yield SubmissionMustFail(pages.Transcribe, {'transcribed_text': 'foo'})

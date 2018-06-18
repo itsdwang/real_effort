@@ -1,0 +1,46 @@
+{% load otree static %}
+
+<div class="card bg-light instructions">
+    <div class="card-body">
+    <h3>
+        Instructions
+    </h3>
+
+    <p>
+
+        This game combines elements of the Public Goods game and Real Effort
+        Transcription task into one activity. In this game, there are two modes: no transcription
+        and transcription, both of which are described as follows:
+
+        <br><br>
+        <b>Mode 1 (No Transcription):</b>
+        This is the Public Goods game modified slightly. You will be in a randomly formed
+        group of {{ Constants.players_per_group }} participants, where each participant is given a fixed income, and a
+        tax of X% is automatically collected. You must decide how much of your income you will report. Reported income
+        could be any integer from 0 to your base income.
+        <br><br>
+        <b>Mode 2 (Transcription):</b>
+        You do not start with a fixed income. Rather, you are shown two images of incomprehensible text and are required
+        to transcribe (copy) the text into a text entry field. The quality of a subject's transcription is measured by
+        the <a href="http://en.wikipedia.org/wiki/Levenshtein_distance">Levenshtein distance</a>.
+        The accuracy of each players' transcription of the second image ultimately determines
+        each person's income. The remainder of mode 2 follows mode 1.
+    </p>
+    <p>
+        The earnings from the project are calculated as follows: The
+        tax collected from each of the {{ Constants.players_per_group }} participants
+        is added up and multiplied by a certain factor, and the resulting amount is the
+        total earnings from the project, which is evenly split among all
+        {{ Constants.players_per_group }} participants. Each participant's payoff equals the
+        their share of the tax money plus the amount of income they had remaining after tax
+        was deducted.
+    </p>
+    <p>
+        
+        spanish version with the english 
+    </p>
+    <p>
+        spanish version
+    </p>
+    </div>
+</div>

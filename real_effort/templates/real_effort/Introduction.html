@@ -1,0 +1,17 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Introduction
+{% endblock %}
+
+{% block content %}
+
+    {% include Constants.instructions_template %}
+    <p> Alternate Language Option</p>
+    {% formfield player.spanish %}
+    
+
+    {% next_button %}
+
+{% endblock %}
