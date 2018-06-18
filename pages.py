@@ -10,9 +10,9 @@ def writeText(text, fileName):
     image = Image.open('real_effort/background.png')
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype('real_effort/Roboto-Regular.ttf', size=12)
-    imageChars = 50
+    imageChars = 40
     numLines = len(text) / imageChars
-    numLines = int(math.ceil(numLines))
+    numLines = math.ceil(numLines)
     lines = []
     for i in range(numLines):
         if(imageChars * (i + 1) < len(text)):
