@@ -92,6 +92,7 @@ class Subsession(BaseSubsession):
         for p in self.get_players():
             p.ratio = 1
             p.contribution = 0
+            p.spanish = Constants.config[0][self.round_number - 1]["spanish"]
             p.income = Constants.config[0][self.round_number - 1]["end"]
 
 
@@ -128,3 +129,4 @@ class Player(BasePlayer):
     done = models.BooleanField()
     transcriptionDone = models.BooleanField()
     payoff = models.FloatField()
+    refText = models.LongStringField()

@@ -4,7 +4,9 @@ from .models import Constants, levenshtein, distance_and_ok
 from django.conf import settings
 from PIL import Image, ImageDraw, ImageFont
 import math
+from random import *
 import random
+import string
 
 def writeText(text, fileName): 
     image = Image.open('real_effort/background.png')
@@ -29,6 +31,27 @@ def writeText(text, fileName):
 
     image.save(fileName)
 
+def generateText(difficulty):
+    #choose difficulty 1 to 3
+    min_char = 5 * difficulty
+    max_char = min_char + 6
+    generated = ""
+    allchar = string.ascii_lowercase + string.digits + string.punctuation
+    if(difficulty == 1):
+        allchar = string.ascii_lowercase
+    if(difficulty == 2):
+        allchar = string.ascii_lowercase + string.digits
+
+        
+    
+    
+    while(len(generated) < 250 - max_char):
+        add = "".join(choice(allchar) for x in range(randint(min_char, max_char)))
+        generated += (add + " ")
+    return generated
+
+
+
 def getPageCode(self):
     config = Constants.config
     t_code = 0
@@ -41,8 +64,7 @@ def getPageCode(self):
 
 
 class Introduction(Page):
-    form_model = 'player'
-    form_fields = ['spanish']
+    
     """Description of the game: How to play and returns expected"""
 
     def is_displayed(self):
@@ -54,6 +76,7 @@ class Introduction(Page):
 class Transcribe(Page):
     form_model = 'player'
     form_fields = ['transcribed_text']
+    
 
     # Don't display this Transcribe page if the "transcription" value in
     # the dictionary representing this round in config.py is False
@@ -66,16 +89,18 @@ class Transcribe(Page):
         for p in self.player.in_all_rounds():
             if(p.transcriptionDone):
                 return False
+        self.player.refText = generateText(Constants.config[0][self.round_number - 1]["difficulty"])
+
 
         return True
 
     def vars_for_template(self):
-        writeText("test for transcribe page #21983401-29384-129834-1283-4182-304981-2384-12348", 'real_effort/static/real_effort/paragraphs/{}.png'.format(2))
         pgCode = getPageCode(self)
 
+        writeText(self.player.refText, 'real_effort/static/real_effort/paragraphs/{}.png'.format(2))
         return {
             'image_path': 'real_effort/paragraphs/{}.png'.format(2), 
-            'reference_text': Constants.reference_texts[1],
+            'reference_text': self.player.refText,
             'debug': settings.DEBUG,
             'required_accuracy': 100 * (1 - Constants.allowed_error_rates[1]),
             'pgCode': pgCode
@@ -84,7 +109,7 @@ class Transcribe(Page):
     def transcribed_text_error_message(self, transcribed_text):
         """Determines the player's transcription accuracy."""
 
-        reference_text = Constants.reference_texts[1]
+        reference_text = self.player.refText
         allowed_error_rate = Constants.allowed_error_rates[1]
         distance, ok = distance_and_ok(transcribed_text, reference_text,
                                        allowed_error_rate)
@@ -98,22 +123,9 @@ class Transcribe(Page):
                 return "This transcription appears to contain too many errors."
 
     def before_next_page(self):
-        """Initialize payoff to have a default value of 0"""
+        self.player.ratio = 1 - self.player.levenshtein_distance / len(self.player.refText)
+        self.player.income *= self.player.ratio
         self.player.payoff = 0
-
-        config = Constants.config
-        self.player.income = config[0][self.round_number - 1]["end"]
-
-        for prev_player in self.player.in_all_rounds():
-            # Income calculation done here
-            if prev_player.transcribed_text == None:
-                prev_player.transcribed_text = ""
-                prev_player.levenshtein_distance = 0
-
-            self.player.ratio = 1 - prev_player.levenshtein_distance / Constants.maxdistance2
-            self.player.income *= self.player.ratio
-            print("inside transcribe results, player income is")
-
         self.player.transcriptionDone = True
 
 
@@ -121,7 +133,10 @@ class Transcribe2(Page):
     form_model = 'player'
     form_fields = ['transcribed_text2']
 
+    
+
     def is_displayed(self):
+        self.player.refText = generateText(Constants.config[0][self.round_number - 1]["difficulty"])
         # Don't display this Transcribe page if the "transcription" value in
         # the dictionary representing this round in config.py is False
         if (Constants.config[0][self.round_number - 1]["transcription"] == False):
@@ -139,14 +154,15 @@ class Transcribe2(Page):
 
     def vars_for_template(self):
         pgCode = getPageCode(self)
-        writeText("Test for transcribe page #1 lak;sjdfl;aksjdfl;aksjdfl;kjasdl;fkjals;dkfja;sldkjf;alskjdf;ajksdf;lajk;", 'real_effort/static/real_effort/paragraphs/{}.png'.format(1))
 
+        
+        writeText(self.player.refText, 'real_effort/static/real_effort/paragraphs/{}.png'.format(1))
         return {
             'image_path': 'real_effort/paragraphs/{}.png'.format(1),
-            'reference_text': Constants.reference_texts[0],
+            'reference_text': self.player.refText,
             'debug': settings.DEBUG,
+            'pgCode': pgCode,
             'required_accuracy': 100 * (1 - Constants.allowed_error_rates[0]),
-            'pgCode': pgCode
         }
 
     def before_next_page(self):
@@ -222,21 +238,14 @@ class part2(Page):
         pgCode = getPageCode(self)
         endowment = config[0][self.round_number - 1]["end"]
         transcribe_on = config[0][self.round_number - 1]["transcription"]
-
-        """
-        if self.player.ratio == 1 and Constants.config[0][self.round_number - 1]["transcription"] == False:
+        if self.player.ratio == 1 and Constants.config[0][self.round_number - 1]["transcription"] == True:
             for p in self.player.in_all_rounds():
                 if p.ratio < 1:
                     self.player.ratio = p.ratio
-                    print("player income before is:", self.player.income)
-                    self.player.income *= self.player.ratio
+                    self.player.income *= p.ratio
                     break
 
-                    print("player income after is:", self.player.income)
-        """
-
-        # Displays the tax as a percentage rather than as a decimal between 0 and 1
-        self.player.ratio = round(self.player.ratio, 5)
+        
         displaytax = config[0][self.round_number - 1]["tax"] * 100
 
         display_ratio = self.player.ratio * 100
@@ -286,7 +295,7 @@ class Authority(Page):
 
 class AuthorityInfo(Page):
     def is_displayed(self):
-        config = Constants.config
+
         group = self.group
 
         if (self.player.id_in_group == group.random_player):
