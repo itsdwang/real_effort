@@ -251,6 +251,9 @@ class part2(Page):
                 'pgCode': pgCode
         }
 
+    def before_next_page(self):
+        self.group.appropriation = 0
+
 
 class resultsWaitPage(WaitPage):
     def after_all_players_arrive(self):
