@@ -7,7 +7,7 @@
 
 {% block content %}
     {% if player.spanish %}
-        <table class="table-condensed" style="width:1000px; margin-top:20px;">
+        <table class="table-condensed" style="width:850px; margin-top:20px;">
         <tr>
             <td>Spanish: You reported income of:</td>
             <td>{{ player.contribution }}</td>
@@ -55,7 +55,7 @@
     </table>
     <p></p>
     {% else %}
-        <table class="table-condensed" style="width:1000px; margin-top:20px;">
+        <table class="table-condensed" style="width:800px; margin-top:20px;">
         <tr>
             <td>You reported income of:</td>
             <td>{{ player.contribution }}</td>
@@ -79,14 +79,16 @@
             <td colspan="2"><hr/></td>
         </tr>
 
-        <tr>
-            <td>Money appropriated by authority ({{display_tax}}% of the Group money):</td>
-            <td>{{ appropriation }}</td>
-        </tr>
+        {% if mode != 1 %}
+            <tr>
+                <td>Money appropriated by authority ({{display_tax}}% of the Group money):</td>
+                <td>{{ appropriation }}</td>
+            </tr>
 
-        <tr>
-            <td colspan="2"><hr/></td>
-        </tr>
+            <tr>
+                <td colspan="2"><hr/></td>
+            </tr>
+        {% endif %}
 
         <tr>
             <td>Money distributed equally among group members:</td>
@@ -97,10 +99,10 @@
 
         <tr>
             <td>Your payoff for this period is:</td>
-            <td colspan="2">Task Income - Reported Income * Tax rate + Share of group money</td>
+            <td>{{ player.income }} - {{ player.contribution }} * {{ tax }} + {{ player_earnings }}</td>
         </tr>
         <tr>
-            <td>{{ player.income }} - {{ player.contribution }} * {{ tax }} + {{ player_earnings }}</td>
+            <td>Task Income - Reported Income * Tax Rate + Share of group money</td>
             <td>{{ player.payoff }}</td>
         </tr>
 

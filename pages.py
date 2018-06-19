@@ -58,7 +58,7 @@ def getPageCode(self):
     if config[0][self.round_number - 1]["transcription"] == True:
         t_code = 1
 
-    return "R" + str(self.round_number) + "_" + "T" + str(t_code) + "_" + "A" + str(auth_code)
+    return "P" + str(self.round_number) + "_" + "T" + str(t_code) + "_" + "A" + str(auth_code)
 
 
 class Introduction(Page):
@@ -240,7 +240,7 @@ class part2(Page):
                     break
 
         displaytax = config[0][self.round_number - 1]["tax"] * 100
-        display_ratio = round(self.player.ratio * 100, 3)
+        display_ratio = round(self.player.ratio * 100, 1)
         display_income = int(self.player.income)
 
         return {'ratio': self.player.ratio, 'income': self.player.income, 'tax': displaytax,
@@ -403,6 +403,8 @@ class TaxResults(Page):
         share = self.group.total_earnings / Constants.players_per_group
         tax = config[0][int(self.round_number - 1)]["tax"]
         multiplier = config[0][self.round_number - 1]["multiplier"]
+        mode = config[0][self.round_number - 1]["mode"]
+
         display_tax = tax * 100
         others_avg_income = 0
         pgCode = getPageCode(self)
@@ -420,7 +422,7 @@ class TaxResults(Page):
             'avg_income': others_avg_income, 'num_other_players': Constants.players_per_group - 1,
             'total_tax_contribution': total_tax_contribution, 'multiplier': multiplier,
             'appropriation': group.appropriation,'tax': tax, 'display_tax': display_tax,
-            'pgCode': pgCode
+            'pgCode': pgCode, 'mode': mode
         }
 
 page_sequence = [Introduction, Transcribe2, Transcribe, part2, resultsWaitPage,
