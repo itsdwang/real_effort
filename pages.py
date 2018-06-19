@@ -8,7 +8,7 @@ from random import *
 import random
 import string
 
-def writeText(text, fileName): 
+def writeText(text, fileName):
     image = Image.open('real_effort/background.png')
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype('real_effort/Roboto-Regular.ttf', size=12)
@@ -37,19 +37,17 @@ def generateText(difficulty):
     max_char = min_char + 6
     generated = ""
     allchar = string.ascii_lowercase + string.digits + string.punctuation
-    if(difficulty == 1):
+
+    if difficulty == 1:
         allchar = string.ascii_lowercase
-    if(difficulty == 2):
+    if difficulty == 2:
         allchar = string.ascii_lowercase + string.digits
 
-        
-    
-    
     while(len(generated) < 250 - max_char):
         add = "".join(choice(allchar) for x in range(randint(min_char, max_char)))
         generated += (add + " ")
-    return generated
 
+    return generated
 
 
 def getPageCode(self):
@@ -64,7 +62,6 @@ def getPageCode(self):
 
 
 class Introduction(Page):
-    
     """Description of the game: How to play and returns expected"""
 
     def is_displayed(self):
@@ -73,10 +70,10 @@ class Introduction(Page):
 
         return False
 
+
 class Transcribe(Page):
     form_model = 'player'
     form_fields = ['transcribed_text']
-    
 
     # Don't display this Transcribe page if the "transcription" value in
     # the dictionary representing this round in config.py is False
@@ -91,15 +88,15 @@ class Transcribe(Page):
                 return False
         self.player.refText = generateText(Constants.config[0][self.round_number - 1]["difficulty"])
 
-
         return True
 
     def vars_for_template(self):
         pgCode = getPageCode(self)
 
         writeText(self.player.refText, 'real_effort/static/real_effort/paragraphs/{}.png'.format(2))
+
         return {
-            'image_path': 'real_effort/paragraphs/{}.png'.format(2), 
+            'image_path': 'real_effort/paragraphs/{}.png'.format(2),
             'reference_text': self.player.refText,
             'debug': settings.DEBUG,
             'required_accuracy': 100 * (1 - Constants.allowed_error_rates[1]),
@@ -133,8 +130,6 @@ class Transcribe2(Page):
     form_model = 'player'
     form_fields = ['transcribed_text2']
 
-    
-
     def is_displayed(self):
         self.player.refText = generateText(Constants.config[0][self.round_number - 1]["difficulty"])
         # Don't display this Transcribe page if the "transcription" value in
@@ -146,16 +141,14 @@ class Transcribe2(Page):
         # Don't display this Transcribe page for each player who has completed
         # the second transcription task
         for p in self.player.in_all_rounds():
-            if(p.transcriptionDone): 
+            if(p.transcriptionDone):
                 return False
 
         return True
 
-
     def vars_for_template(self):
         pgCode = getPageCode(self)
 
-        
         writeText(self.player.refText, 'real_effort/static/real_effort/paragraphs/{}.png'.format(1))
         return {
             'image_path': 'real_effort/paragraphs/{}.png'.format(1),
@@ -238,6 +231,7 @@ class part2(Page):
         pgCode = getPageCode(self)
         endowment = config[0][self.round_number - 1]["end"]
         transcribe_on = config[0][self.round_number - 1]["transcription"]
+
         if self.player.ratio == 1 and Constants.config[0][self.round_number - 1]["transcription"] == True:
             for p in self.player.in_all_rounds():
                 if p.ratio < 1:
@@ -245,10 +239,8 @@ class part2(Page):
                     self.player.income *= p.ratio
                     break
 
-        
         displaytax = config[0][self.round_number - 1]["tax"] * 100
-
-        display_ratio = self.player.ratio * 100
+        display_ratio = round(self.player.ratio * 100, 3)
         display_income = int(self.player.income)
 
         return {'ratio': self.player.ratio, 'income': self.player.income, 'tax': displaytax,
@@ -266,8 +258,6 @@ class resultsWaitPage(WaitPage):
 
         # Generate a random player ID to determine who will be the authority
         group.random_player = random.randint(1, Constants.players_per_group)
-
-        print("Random player's ID is: ", group.random_player)
 
 
 class Authority(Page):
@@ -295,7 +285,6 @@ class Authority(Page):
 
 class AuthorityInfo(Page):
     def is_displayed(self):
-
         group = self.group
 
         if (self.player.id_in_group == group.random_player):
@@ -309,14 +298,17 @@ class AuthorityInfo(Page):
         pgCode = getPageCode(self)
 
         mode_num = config[0][self.round_number - 1]["mode"]
+        multiplier = config[0][self.round_number - 1]["multiplier"]
+        tax = config[0][self.round_number - 1]["tax"]
+
         if(mode_num == 1 and group.authority_multiply):
-            decision = Constants.decisions[1] + " " + str(config[0][self.round_number - 1]["multiplier"]) + "."
+            decision = Constants.decisions[1] + " " + str(multiplier) + "."
         elif(mode_num == 1 and not group.authority_multiply):
             decision = Constants.decisions[0]
         elif(mode_num == 2 and not group.auth_appropriate):
-            decision = Constants.decisions[1] + " " + str(config[0][self.round_number - 1]["multiplier"]) + " ."
+            decision = Constants.decisions[1] + " " + str(multiplier) + " ."
         else:
-            decision = Constants.decisions[1] + " " + str(config[0][self.round_number - 1]["multiplier"]) + Constants.decisions[2] + str(config[0][self.round_number - 1]["tax"] * 100) + Constants.decisions[3]
+            decision = Constants.decisions[1] + " " + str(multiplier) + Constants.decisions[2] + str(tax * 100) + Constants.decisions[3]
 
         return {"decision": decision, 'pgCode': pgCode}
 
@@ -356,11 +348,8 @@ class AuthorityWaitPage(WaitPage):
         tax = config[0][int(self.round_number - 1)]["tax"]
         multiplier = config[0][self.round_number - 1]["multiplier"]
 
-        # NOTE: the code below can definitely be refactored (get rid of duplicate code), but I just want to see if
-        # the functionality is correct first
-        if(mode_num == 1 and group.authority_multiply):
+        if mode_num == 1:
             contributions = [p.contribution * tax for p in players]
-
             group.total_contribution = multiplier * sum(contributions)
             group.total_earnings = group.total_contribution
 
@@ -369,19 +358,8 @@ class AuthorityWaitPage(WaitPage):
             for p in players:
                 p.payoff = p.income - (tax * p.contribution) + group.individual_share
 
-        # This below else if statement should never be executed
-        elif(mode_num == 1 and not group.authority_multiply):
+        elif mode_num == 2 and not group.auth_appropriate:
             contributions = [p.contribution * tax for p in players]
-            group.total_contribution = sum(contributions)
-            group.total_earnings = multiplier * group.total_contribution
-            group.individual_share = group.total_earnings / Constants.players_per_group
-
-            for p in players:
-                p.payoff = p.income - (tax * p.contribution) + group.individual_share
-
-        elif(mode_num == 2 and not group.auth_appropriate):
-            contributions = [p.contribution * tax for p in players]
-
             group.total_contribution = multiplier * sum(contributions)
             group.total_earnings = group.total_contribution
 
@@ -390,10 +368,9 @@ class AuthorityWaitPage(WaitPage):
             for p in players:
                 p.payoff = p.income - (tax * p.contribution) + group.individual_share
 
-        # Mode 2, Authority 2, Button 2
+        # Mode 2, Authority Mode 2, Button 2 (Appropriation)
         else:
             contributions = [p.contribution * tax for p in players]
-
             group.total_contribution = multiplier * sum(contributions)
             group.total_earnings = group.total_contribution
 
@@ -419,6 +396,7 @@ class TaxResults(Page):
         group = self.group
         player = self.player
         players = group.get_players()
+
         share = self.group.total_earnings / Constants.players_per_group
         tax = config[0][int(self.round_number - 1)]["tax"]
         multiplier = config[0][self.round_number - 1]["multiplier"]
@@ -441,11 +419,6 @@ class TaxResults(Page):
             'appropriation': group.appropriation,'tax': tax, 'display_tax': display_tax,
             'pgCode': pgCode
         }
-
-"""
-page_sequence = [Introduction, Transcribe2, Transcribe, TranscribeResults, part2, resultsWaitPage,
-                 Authority,  Authority2, AuthorityWaitPage, AuthorityInfo, TaxResults]
-"""
 
 page_sequence = [Introduction, Transcribe2, Transcribe, part2, resultsWaitPage,
                  Authority,  Authority2, AuthorityWaitPage, AuthorityInfo, TaxResults]

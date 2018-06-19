@@ -115,16 +115,16 @@ class Group(BaseGroup):
     # him/herself)?
     auth_appropriate = models.BooleanField()
     total_reported_income = models.CurrencyField()
-    appropriation = models.CurrencyField()
+    appropriation = models.IntegerField()
 
 
 class Player(BasePlayer):
     transcribed_text = models.LongStringField()
     transcribed_text2 = models.LongStringField()
     levenshtein_distance = models.IntegerField()
-    ratio = models.FloatField()     # Multiplied by base income to determine starting income
+    ratio = models.FloatField()
     contribution = models.IntegerField(min = 0, initial = -1)
-    income = models.CurrencyField()
+    income = models.IntegerField()
     spanish = models.BooleanField()
     done = models.BooleanField()
     transcriptionDone = models.BooleanField()
