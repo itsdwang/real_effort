@@ -1,0 +1,44 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    <p style="font-size:15px; color:#CD853F;" align="right">{{ pgCode }}<br/>Period {{ round_num }}</p>
+    Task Results and Reporting Income
+{% endblock %}
+
+{% block content %}
+    {% if player.spanish %}
+        <p> spanish text</p>
+        <p>  tax rate is {{ tax }}%.</p>
+        <p> The accuracy of your transcription was {{ display_ratio }}%. </p>
+        <p> asdfasdfadf multiplied by {{ mult }}, asdfasfd
+        </p>
+        {% formfield player.contribution label="How much income will you report?" %}
+    {% else %}
+        {% if transcribe_on %}
+            <p>
+                The accuracy of your transcription was {{ display_ratio }}%.
+                <br/>
+                Therefore, your income is {{ display_ratio }}% of {{ endowment }} ECUs, which is {{ display_income }} ECUs.
+            </p>
+        {% else %}
+            Your income is {{ display_income }} ECUs.
+            <br/><br/>
+        {% endif %}
+        <p>
+            Reporting Income:
+            <br/>
+            The tax rate is {{ tax }}%.
+            <br/><br/>
+            Please, in the field below, report your income for tax collection.
+        </p>
+
+        {% formfield player.contribution label="How much income will you report?" %}
+    <p> Remember that the total tax collected from all group members is added together, multiplied by {{ mult }}, and then
+        divided evenly among all group members, regardless of how much each contributed.
+    </p>
+    {% endif %}
+
+    {% next_button %}
+
+{% endblock %}

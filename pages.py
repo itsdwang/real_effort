@@ -11,8 +11,10 @@ import string
 
 def writeText(text, fileName):
     image = Image.open('real_effort/background.png')
+    image = image.resize((450, 250))
+    image.save('real_effort/background.png')
     draw = ImageDraw.Draw(image)
-    font = ImageFont.truetype('real_effort/Roboto-Regular.ttf', size=12)
+    font = ImageFont.truetype('real_effort/Roboto-Regular.ttf', size=19)
     imageChars = 40
     numLines = len(text) / imageChars
     numLines = math.ceil(numLines)
@@ -27,6 +29,7 @@ def writeText(text, fileName):
     for i in range(numLines):
         (x, y) = (10, 20 * i)
         message = lines[i]
+        print("Message is: ", message)
         color = 'rgb(0, 0, 0)' # black color
         draw.text((x, y), message, fill=color, font=font)
 
@@ -63,7 +66,6 @@ def getPageCode(self):
     if config[0][self.round_number - 1]["transcription"] == True:
         t_code = 1
 
-    # "P" + str(self.round_number) + "_" + "T" + str(t_code) + "_" + "A" + str(auth_code)
     return "T" + str(t_code) + "_" + "A" + str(auth_code)
 
 
@@ -169,60 +171,7 @@ class Transcribe2(Page):
         self.player.payoff = 0
 
 
-"""
-class TranscribeResults(Page):
-    form_model = 'player'
-    form_fields = []
-
-    def is_displayed(self):
-        # Don't display the TranscribeResults page listing each player's transcription
-        # accuracy (levenshtein value) if the "transcription" value in
-        # the dictionary representing this round in config.py is False
-        if (Constants.config[0][self.round_number - 1]["transcription"] == False):
-            return False
-
-        # Don't display this TranscribeResults page for each player who has completed
-        # the second transcription task
-        for p in self.player.in_all_rounds():
-            if(p.transcriptionDone):
-                return False
-
-        return True
-
-    def vars_for_template(self):
-        table_rows = []
-        config = Constants.config
-        self.player.income = config[0][self.round_number - 1]["end"]
-
-        for prev_player in self.player.in_all_rounds():
-        # Income calculation done here
-            if prev_player.transcribed_text == None:
-                prev_player.transcribed_text = ""
-                prev_player.levenshtein_distance = 0
-
-            row = { 
-                'round_number': prev_player.round_number,
-                'reference_text_length': len(Constants.reference_texts[1]),
-                'transcribed_text_length': len(prev_player.transcribed_text),
-                'distance': prev_player.levenshtein_distance,
-                'ratio':   1 - prev_player.levenshtein_distance / Constants.maxdistance2,
-            }
-
-            self.player.ratio = 1 - prev_player.levenshtein_distance / Constants.maxdistance2
-            self.player.income *= self.player.ratio
-            print("inside transcribe results, player income is")
-
-            table_rows.append(row)
-
-        print("inside transcriberesults varsfortemplate")
-        return {'table_rows': table_rows}
-
-    def before_next_page(self):
-        # Disables transcription for the rest of the game
-        self.player.transcriptionDone = True
-"""
-
-class part2(Page):
+class ReportIncome(Page):
     form_model = 'player'
     form_fields = ['contribution']
 
@@ -450,6 +399,7 @@ class TaxResults(Page):
         display_appropriation = appropriation_percent * 100
 
         display_tax = tax * 100
+        payoff = int(player.payoff)
         others_avg_income = 0
         pgCode = getPageCode(self)
 
@@ -466,8 +416,9 @@ class TaxResults(Page):
             'avg_income': others_avg_income, 'num_other_players': Constants.players_per_group - 1,
             'total_tax_contribution': total_tax_contribution, 'multiplier': multiplier,
             'appropriation': group.appropriation,'tax': tax, 'display_tax': display_tax,
-            'pgCode': pgCode, 'mode': mode, 'round_num': self.round_number, 'display_app_percent': display_appropriation
+            'pgCode': pgCode, 'mode': mode, 'round_num': self.round_number, 'display_app_percent': display_appropriation,
+            'payoff': payoff
         }
 
-page_sequence = [Introduction, Transcribe2, Transcribe, part2, Audit, resultsWaitPage,
+page_sequence = [Introduction, Transcribe2, Transcribe, ReportIncome, Audit, resultsWaitPage,
                  Authority,  Authority2, AuthorityWaitPage, AuthorityInfo, TaxResults]
