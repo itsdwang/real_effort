@@ -4,9 +4,9 @@ import random
 # Each dictionary entry represents the data values for 1 round
 data = [
     [ 
-        {"end": 1000, "multiplier": 2, "tax": 0.1, "transcription": True, "mode": 1, "difficulty": 1, "spanish": False},
-        {"end": 2000, "multiplier": 3, "tax": 0.2, "transcription": True, "mode": 2, "difficulty": 2, "spanish": False},
-        {"end": 3000, "multiplier": 4, "tax": 0.3, "transcription": False, "mode": 1, "difficulty": 3, "spanish": False}
+        {"end": 1000, "multiplier": 2, "tax": 0.1, "transcription": True, "mode": 1, "difficulty": 1, "spanish": False, "penalty": 0.1},
+        {"end": 2000, "multiplier": 3, "tax": 0.2, "transcription": True, "mode": 2, "difficulty": 2, "spanish": False, "penalty": 0.1},
+        {"end": 3000, "multiplier": 4, "tax": 0.3, "transcription": False, "mode": 1, "difficulty": 3, "spanish": False, "penalty": 0.1}
     ]
 ]
 

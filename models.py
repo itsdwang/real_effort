@@ -130,3 +130,4 @@ class Player(BasePlayer):
     transcriptionDone = models.BooleanField()
     payoff = models.FloatField()
     refText = models.LongStringField()
+    audit = models.BooleanField()

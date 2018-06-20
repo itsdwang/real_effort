@@ -263,11 +263,43 @@ class part2(Page):
 
     def before_next_page(self):
         self.group.appropriation = 0
+        if(random.randint(0,1) == 0):
+            self.player.audit = True
+        else:
+            self.player.audit = False
+
+
+class Audit(Page):
+    def is_displayed(self):
+        return self.player.audit
+    
+    def vars_for_template(self):
+        if self.player.contribution != self.player.income:
+            temp = self.player.income
+
+            penalty = Constants.config[0][self.round_number-1]["penalty"]
+            self.player.income *= penalty
+            return{
+                'fail': True,
+                'correctIncome': temp,
+                'reportedIncome': self.player.contribution,
+                'newIncome': self.player.income,
+                'penalty': (1 - penalty) * 100
+            }
+        else:
+            return{
+                'fail': False
+            }
+            
 
 
 class resultsWaitPage(WaitPage):
     def after_all_players_arrive(self):
         group = self.group
+        
+        
+
+        
 
         # Generate a random player ID to determine who will be the authority
         group.random_player = random.randint(1, Constants.players_per_group)
@@ -435,5 +467,5 @@ class TaxResults(Page):
             'pgCode': pgCode, 'mode': mode, 'round_num': self.round_number
         }
 
-page_sequence = [Introduction, Transcribe2, Transcribe, part2, resultsWaitPage,
+page_sequence = [Introduction, Transcribe2, Transcribe, part2, Audit, resultsWaitPage,
                  Authority,  Authority2, AuthorityWaitPage, AuthorityInfo, TaxResults]
