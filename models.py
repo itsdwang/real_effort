@@ -74,7 +74,7 @@ class Constants(BaseConstants):
         "not modify the taxed income multiplier.",
         "increase the taxed income multiplier to ",
         " and appropriate an extra ",
-        " percent of the income to themselves."
+        "% of the income to themselves."
     ]
 
     maxdistance1 = len(reference_texts[0])
@@ -86,14 +86,25 @@ class Subsession(BaseSubsession):
     # Executed when the session is created
     def creating_session(self):
         # Shuffle players randomly so that they can end up in any group
-        self.group_randomly()
+        round_number = self.round_number
+
+        if round_number == 1:
+            self.group_randomly()
+
+        if round_number <= (Constants.num_rounds / 2):
+            self.group_like_round(1)
+        else: # round_number > Constants.num_rounds / 2
+            self.group_randomly(fixed_id_in_group=True)
+
+        print("round_number: ", round_number)
+        print(self.get_group_matrix())
 
         # Initialization of default ratio, contribution, and income values for each player
         for p in self.get_players():
             p.ratio = 1
             p.contribution = 0
-            p.spanish = Constants.config[0][self.round_number - 1]["spanish"]
-            p.income = Constants.config[0][self.round_number - 1]["end"]
+            p.spanish = Constants.config[0][round_number - 1]["spanish"]
+            p.income = Constants.config[0][round_number - 1]["end"]
 
 
 class Group(BaseGroup): 

@@ -2,20 +2,17 @@
 {% load otree static %}
 
 {% block title %}
-    <p style="font-size:15px; color:#CD853F;" align="right">{{ pgCode }}<br/>Period {{ round_num }}</p>    Audit
+    <p style="font-size:15px; color:#CD853F;" align="right">{{ pgCode }}<br/>Period {{ round_num }}</p>Audit
 {% endblock %}
 
 {% block content %}
-
     {% if fail %}
-        <p>you got audited and found out, you should have reported {{ correctIncome }} but you reported {{ reportedIncome }}, so you have 
-            been penalized {{ penalty }} percent of your income. Your income is now {{ newIncome }}.
-
+        <p>You have randomly been selected to be audited!<br/><br/>You should have reported {{ correctIncome }} ECUs as
+            your income, but you reported {{ reportedIncome }} ECUs, so you have been penalized {{ penalty }}% of your
+            remaining income, after taxes have been deducted. Your income is now {{ newIncome }} ECUs.
     {% else %}
-        <p>you were selected for an audit but you reported your income right good job</p>
-
+        <p>You have been selected to be audited! You correctly reported your income, so you will incur no penalty.</p>
 {% endif %}
-
 
     {% next_button %}
 

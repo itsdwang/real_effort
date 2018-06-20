@@ -8,6 +8,7 @@ from random import *
 import random
 import string
 
+
 def writeText(text, fileName):
     image = Image.open('real_effort/background.png')
     draw = ImageDraw.Draw(image)
@@ -37,11 +38,9 @@ def generateText(difficulty):
     max_char = min_char + 6
     allchar = string.ascii_lowercase + string.digits + string.punctuation
     vowels = ('a','e', 'i','o','u')
-    
-        
+
     generated = ''
 
-    
     if(difficulty == 1):
         allchar = string.ascii_lowercase
     if(difficulty == 2):
@@ -49,9 +48,6 @@ def generateText(difficulty):
     for i in range(10):
         for i in range(5):
              allchar += vowels[i]
-
-        
-    
     
     while(len(generated) < 70 - max_char):
         add = "".join(choice(allchar) for x in range(randint(min_char, max_char)))
@@ -274,32 +270,35 @@ class Audit(Page):
         return self.player.audit
     
     def vars_for_template(self):
-        if self.player.contribution != self.player.income:
-            temp = self.player.income
+        config = Constants.config
+        pgCode = getPageCode(self)
+        player = self.player
 
-            penalty = Constants.config[0][self.round_number-1]["penalty"]
-            self.player.income *= penalty
-            return{
+        if player.contribution != player.income:
+            temp = player.income
+
+            penalty = config[0][self.round_number - 1]["penalty"]
+            tax = config[0][int(self.round_number - 1)]["tax"]
+
+            player.income = (1 - penalty) * (player.income - (tax * player.contribution))
+
+            return {
                 'fail': True,
                 'correctIncome': temp,
-                'reportedIncome': self.player.contribution,
-                'newIncome': self.player.income,
-                'penalty': (1 - penalty) * 100
+                'reportedIncome': player.contribution,
+                'newIncome': round(player.income, 1),
+                'penalty': penalty * 100,
+                'pgCode': pgCode, 'round_num': self.round_number
             }
         else:
-            return{
-                'fail': False
+            return {
+                'fail': False, 'pgCode': pgCode, 'round_num': self.round_number
             }
-            
 
 
 class resultsWaitPage(WaitPage):
     def after_all_players_arrive(self):
         group = self.group
-        
-        
-
-        
 
         # Generate a random player ID to determine who will be the authority
         group.random_player = random.randint(1, Constants.players_per_group)
@@ -392,6 +391,7 @@ class AuthorityWaitPage(WaitPage):
         mode_num = config[0][self.round_number - 1]["mode"]
         tax = config[0][int(self.round_number - 1)]["tax"]
         multiplier = config[0][self.round_number - 1]["multiplier"]
+        appropriation_percent = config[0][self.round_number - 1]["appropriation_percent"]
 
         if mode_num == 1:
             contributions = [p.contribution * tax for p in players]
@@ -419,7 +419,7 @@ class AuthorityWaitPage(WaitPage):
             group.total_contribution = multiplier * sum(contributions)
             group.total_earnings = group.total_contribution
 
-            group.appropriation = tax * group.total_contribution
+            group.appropriation = appropriation_percent * group.total_contribution
             group.total_earnings -= group.appropriation
             group.individual_share = group.total_earnings / Constants.players_per_group
 
@@ -446,6 +446,8 @@ class TaxResults(Page):
         tax = config[0][int(self.round_number - 1)]["tax"]
         multiplier = config[0][self.round_number - 1]["multiplier"]
         mode = config[0][self.round_number - 1]["mode"]
+        appropriation_percent = config[0][self.round_number - 1]["appropriation_percent"]
+        display_appropriation = appropriation_percent * 100
 
         display_tax = tax * 100
         others_avg_income = 0
@@ -464,7 +466,7 @@ class TaxResults(Page):
             'avg_income': others_avg_income, 'num_other_players': Constants.players_per_group - 1,
             'total_tax_contribution': total_tax_contribution, 'multiplier': multiplier,
             'appropriation': group.appropriation,'tax': tax, 'display_tax': display_tax,
-            'pgCode': pgCode, 'mode': mode, 'round_num': self.round_number
+            'pgCode': pgCode, 'mode': mode, 'round_num': self.round_number, 'display_app_percent': display_appropriation
         }
 
 page_sequence = [Introduction, Transcribe2, Transcribe, part2, Audit, resultsWaitPage,
