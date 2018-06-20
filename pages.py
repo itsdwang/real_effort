@@ -58,7 +58,8 @@ def getPageCode(self):
     if config[0][self.round_number - 1]["transcription"] == True:
         t_code = 1
 
-    return "P" + str(self.round_number) + "_" + "T" + str(t_code) + "_" + "A" + str(auth_code)
+    # "P" + str(self.round_number) + "_" + "T" + str(t_code) + "_" + "A" + str(auth_code)
+    return "T" + str(t_code) + "_" + "A" + str(auth_code)
 
 
 class Introduction(Page):
@@ -100,7 +101,7 @@ class Transcribe(Page):
             'reference_text': self.player.refText,
             'debug': settings.DEBUG,
             'required_accuracy': 100 * (1 - Constants.allowed_error_rates[1]),
-            'pgCode': pgCode
+            'pgCode': pgCode, 'round_num': self.round_number
         }
 
     def transcribed_text_error_message(self, transcribed_text):
@@ -154,7 +155,7 @@ class Transcribe2(Page):
             'image_path': 'real_effort/paragraphs/{}.png'.format(1),
             'reference_text': self.player.refText,
             'debug': settings.DEBUG,
-            'pgCode': pgCode,
+            'pgCode': pgCode, 'round_num': self.round_number,
             'required_accuracy': 100 * (1 - Constants.allowed_error_rates[0]),
         }
 
@@ -248,7 +249,7 @@ class part2(Page):
                 'mult': config[0][self.round_number - 1]["multiplier"],
                 'display_ratio': display_ratio, 'endowment': endowment,
                 'display_income': display_income, 'transcribe_on': transcribe_on,
-                'pgCode': pgCode
+                'pgCode': pgCode, 'round_num': self.round_number
         }
 
     def before_next_page(self):
@@ -282,7 +283,7 @@ class Authority(Page):
 
         return {
             'mult': config[0][self.round_number - 1]["multiplier"],
-            'pgCode': pgCode
+            'pgCode': pgCode, 'round_num': self.round_number
         }
 
 
@@ -337,7 +338,7 @@ class Authority2(Page):
 
         return {
             'mult': config[0][self.round_number - 1]["multiplier"],
-            'tax': displaytax, 'pgCode': pgCode
+            'tax': displaytax, 'pgCode': pgCode, 'round_num': self.round_number
         }
 
 
@@ -422,7 +423,7 @@ class TaxResults(Page):
             'avg_income': others_avg_income, 'num_other_players': Constants.players_per_group - 1,
             'total_tax_contribution': total_tax_contribution, 'multiplier': multiplier,
             'appropriation': group.appropriation,'tax': tax, 'display_tax': display_tax,
-            'pgCode': pgCode, 'mode': mode
+            'pgCode': pgCode, 'mode': mode, 'round_num': self.round_number
         }
 
 page_sequence = [Introduction, Transcribe2, Transcribe, part2, resultsWaitPage,
