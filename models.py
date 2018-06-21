@@ -87,17 +87,23 @@ class Subsession(BaseSubsession):
     def creating_session(self):
         # Shuffle players randomly so that they can end up in any group
         round_number = self.round_number
+        config = Constants.config
+        shuffle = config[0][round_number - 1]["shuffle"]
+        endowment = config[0][round_number - 1]["end"]
+
+        print("Round number: ", round_number, ", Shuffle: ", shuffle)
 
         if round_number == 1:
             self.group_randomly()
 
-        if round_number <= (Constants.num_rounds / 2):
-            self.group_like_round(1)
-        else: # round_number > Constants.num_rounds / 2
-            self.group_randomly(fixed_id_in_group=True)
+        else: # round_number > 1
+            if shuffle == True:
+                self.group_randomly(fixed_id_in_group=True)
+            else:
+                self.group_like_round(round_number - 1)
 
-        print("round_number: ", round_number)
         print(self.get_group_matrix())
+        print("---------------------------------------------------")
 
         # Initialization of default ratio, contribution, and income values for each player
         for p in self.get_players():

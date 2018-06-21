@@ -7,9 +7,9 @@
 
 {% block content %}
     {% if fail %}
-        <p>You have been randomly selected to be audited!<br/><br/>You should have reported {{ correctIncome }} ECUs as
-            your income, but you reported {{ reportedIncome }} ECUs, so you have been penalized {{ penalty }}% of your
-            remaining income, after taxes have been deducted. Your income is now {{ newIncome }} ECUs.
+        <p>You have been randomly selected to be audited.<br/><br/>Your income was {{ correctIncome }} ECUs, and you reported
+            {{ reportedIncome }} ECUs. You have been penalized {{ penalty }}% of your
+            remaining income, after taxes have been deducted. <br/><br/>Thus, your income is now {{ newIncome }} ECUs.
     {% else %}
         <p>You have been selected to be audited! You correctly reported your income, so you will incur no penalty.</p>
 {% endif %}
