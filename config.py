@@ -1,6 +1,7 @@
 import random
 
-# Dictionary Format: endowment, multiplier, tax, transcription
+# Dictionary Format: endowment, multiplier, tax, transcription, authority mode, transcription difficulty, spanish toggle,
+#                    audit penalty, appropriation percent, shuffle
 # Each dictionary entry represents the data values for 1 round
 data = [
     [ 
@@ -13,7 +14,6 @@ data = [
         {"end": 6500, "multiplier": 2, "tax": 0.5, "transcription": False, "mode": 2, "difficulty": 6, "spanish": False, "penalty": 0.9, "appropriation_percent": 0.25, "shuffle": False},
         {"end": 6750, "multiplier": 2, "tax": 0.5, "transcription": True, "mode": 2, "difficulty": 7, "spanish": False, "penalty": 0.9, "appropriation_percent": 0.25, "shuffle": False},
         {"end": 7000, "multiplier": 2, "tax": 0.5, "transcription": True, "mode": 1, "difficulty": 7, "spanish": False, "penalty": 0.9, "appropriation_percent": 0.25, "shuffle": True},
-
     ]
 ]
 

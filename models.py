@@ -54,7 +54,7 @@ def distance_and_ok(transcribed_text, reference_text, max_error_rate):
 
 
 class Constants(BaseConstants):
-    config = config_py.export_data()    # List containing data values for each round
+    config = config_py.export_data()
     name_in_url = 'real_effort'
 
     # The total number of dictionaries in the data list in config.py is the
@@ -70,6 +70,7 @@ class Constants(BaseConstants):
         "Hex ton satoha egavecen. Loh ta receso minenes da linoyiy xese coreliet ocotine! Senuh asud tu bubo tixorut sola, bo ipacape le rorisin lesiku etutale saseriec niyacin ponim na. Ri arariye senayi esoced behin? Tefid oveve duk mosar rototo buc: Leseri binin nolelar sise etolegus ibosa farare. Desac eno titeda res vab no mes!",
     ]
 
+    # Text of decisions that the authority can make
     decisions = [
         "not modify the taxed income multiplier.",
         "increase the taxed income multiplier to ",
@@ -86,20 +87,21 @@ class Subsession(BaseSubsession):
     # Executed when the session is created
     def creating_session(self):
         # Shuffle players randomly so that they can end up in any group
-        round_number = self.round_number
         config = Constants.config
+        round_number = self.round_number
         shuffle = config[0][round_number - 1]["shuffle"]
-        endowment = config[0][round_number - 1]["end"]
 
         print("Round number: ", round_number, ", Shuffle: ", shuffle)
 
+        # After round 1, decision to shuffle the groups is based on whether the value for the "shuffle" key for the
+        # current round's dictionary entry is True
         if round_number == 1:
             self.group_randomly()
 
-        else: # round_number > 1
+        else:
             if shuffle == True:
                 self.group_randomly(fixed_id_in_group=True)
-            else:
+            else: # Keep the groups organized the same as in the previous round
                 self.group_like_round(round_number - 1)
 
         print(self.get_group_matrix())
@@ -121,11 +123,11 @@ class Group(BaseGroup):
     individual_share = models.FloatField()
     temp = models.IntegerField()
 
-    # randomly chosen player to be the authority (based on ID)
-    random_player = models.IntegerField()
+    # ID of randomly-chosen authority player
+    authority_ID = models.IntegerField()
 
     # Does the authority decide to multiply the reported income by the multiplier?
-    # This applies to both mode 1 and mode 2 choice 1, should change this var name later
+    # This applies to both mode 1 and mode 2 choice 1
     authority_multiply = models.BooleanField()
 
     # Does the authority decide on mode 2 choice (appropriate a percentage of the money for

@@ -10,6 +10,9 @@ import string
 
 
 def writeText(text, fileName):
+    """"This method generates the image with the garbled/randomized transcription text on it
+    and saves it to fileName"""
+
     image = Image.open('real_effort/background.png')
     image = image.resize((450, 250))
     image.save('real_effort/background.png')
@@ -36,7 +39,9 @@ def writeText(text, fileName):
     image.save(fileName)
 
 def generateText(difficulty):
-    #choose difficulty 1 to 3
+    """This method generates randomized garbled text whose difficulty to transcribe is based on the difficulty paramaeter
+    (between 1 to 3) that's passed in."""
+
     min_char = 4 * difficulty
     max_char = min_char + 6
     allchar = string.ascii_lowercase + string.digits + string.punctuation
@@ -59,6 +64,10 @@ def generateText(difficulty):
     return generated
 
 def getPageCode(self):
+    """This method generates a page code in the format T_1_A_5, where the number after "T" represents the transcription
+    mode (0 or 1) and the number after "A" represents the authority mode (1 or 2). This page code is displayed at the
+    top right of every page in the game."""
+
     config = Constants.config
     t_code = 0
     auth_code = config[0][self.round_number - 1]["mode"]
@@ -79,17 +88,57 @@ class Introduction(Page):
         return False
 
 
-class Transcribe(Page):
+class Transcribe1(Page):
+    """First transcription task that's shown to the player that is merely for practice and does not determine the ratio
+    for the player's starting income"""
+    form_model = 'player'
+    form_fields = ['transcribed_text2']
+
+    def is_displayed(self):
+        self.player.refText = generateText(Constants.config[0][self.round_number - 1]["difficulty"])
+        # Don't display this Transcribe2 page if the "transcription" value in
+        # the dictionary representing this round in config.py is False
+        if (Constants.config[0][self.round_number - 1]["transcription"] == False):
+            self.player.ratio = 1
+            return False
+
+        # Don't display this Transcribe2 page for each player who has completed
+        # the second transcription task
+        for p in self.player.in_all_rounds():
+            if(p.transcriptionDone):
+                return False
+
+        return True
+
+    def vars_for_template(self):
+        pgCode = getPageCode(self)
+
+        writeText(self.player.refText, 'real_effort/static/real_effort/paragraphs/{}.png'.format(1))
+        return {
+            'image_path': 'real_effort/paragraphs/{}.png'.format(1),
+            'reference_text': self.player.refText,
+            'debug': settings.DEBUG,
+            'pgCode': pgCode, 'round_num': self.round_number,
+            'required_accuracy': 100 * (1 - Constants.allowed_error_rates[0]),
+        }
+
+    def before_next_page(self):
+        """Initialize payoff to have a default value of 0"""
+        self.player.payoff = 0
+
+
+class Transcribe2(Page):
+    """Second transcription task that's shown to the player that determines the ratio sfor the player's starting income"""
     form_model = 'player'
     form_fields = ['transcribed_text']
 
-    # Don't display this Transcribe page if the "transcription" value in
+    # Don't display this Transcribe2 page if the "transcription" value in
     # the dictionary representing this round in config.py is False
     def is_displayed(self):
         if (Constants.config[0][self.round_number - 1]["transcription"] == False):
             return False
 
-        # Don't display this Transcribe page for each player who has completed
+        # Don't display this Transcribe2 page for each player who has completed
         # the first transcription task
         for p in self.player.in_all_rounds():
             if(p.transcriptionDone):
@@ -134,44 +183,8 @@ class Transcribe(Page):
         self.player.transcriptionDone = True
 
 
-class Transcribe2(Page):
-    form_model = 'player'
-    form_fields = ['transcribed_text2']
-
-    def is_displayed(self):
-        self.player.refText = generateText(Constants.config[0][self.round_number - 1]["difficulty"])
-        # Don't display this Transcribe page if the "transcription" value in
-        # the dictionary representing this round in config.py is False
-        if (Constants.config[0][self.round_number - 1]["transcription"] == False):
-            self.player.ratio = 1
-            return False
-
-        # Don't display this Transcribe page for each player who has completed
-        # the second transcription task
-        for p in self.player.in_all_rounds():
-            if(p.transcriptionDone):
-                return False
-
-        return True
-
-    def vars_for_template(self):
-        pgCode = getPageCode(self)
-
-        writeText(self.player.refText, 'real_effort/static/real_effort/paragraphs/{}.png'.format(1))
-        return {
-            'image_path': 'real_effort/paragraphs/{}.png'.format(1),
-            'reference_text': self.player.refText,
-            'debug': settings.DEBUG,
-            'pgCode': pgCode, 'round_num': self.round_number,
-            'required_accuracy': 100 * (1 - Constants.allowed_error_rates[0]),
-        }
-
-    def before_next_page(self):
-        """Initialize payoff to have a default value of 0"""
-        self.player.payoff = 0
-
-
 class ReportIncome(Page):
+    """Page where the player reports his/her income"""
     form_model = 'player'
     form_fields = ['contribution']
 
@@ -215,6 +228,9 @@ class ReportIncome(Page):
 
 
 class Audit(Page):
+    """Alerts a player (if he/she has been chosen) that they have been audited and informs them whether their actual
+    and reported income match. If not, they incur a penalty that's deducted from their remaining income after taxes
+    are deducted."""
     def is_displayed(self):
         return self.player.audit
     
@@ -223,6 +239,7 @@ class Audit(Page):
         pgCode = getPageCode(self)
         player = self.player
 
+        # If player's reported income and actual income don't match
         if player.contribution != player.income:
             temp = player.income
 
@@ -250,7 +267,7 @@ class resultsWaitPage(WaitPage):
         group = self.group
 
         # Generate a random player ID to determine who will be the authority
-        group.random_player = random.randint(1, Constants.players_per_group)
+        group.authority_ID = random.randint(1, Constants.players_per_group)
 
 
 class Authority(Page):
@@ -263,7 +280,7 @@ class Authority(Page):
 
         mode_num = config[0][self.round_number - 1]["mode"]
 
-        if (mode_num == 1 and self.player.id_in_group == group.random_player):
+        if (mode_num == 1 and self.player.id_in_group == group.authority_ID):
             return True
 
     def vars_for_template(self):
@@ -277,10 +294,11 @@ class Authority(Page):
 
 
 class AuthorityInfo(Page):
+    """Lets the other players know what decision the Authority player made."""
     def is_displayed(self):
         group = self.group
 
-        if (self.player.id_in_group == group.random_player):
+        if (self.player.id_in_group == group.authority_ID):
             return False
         else:
             return True
@@ -316,7 +334,7 @@ class Authority2(Page):
 
         mode_num = config[0][self.round_number - 1]["mode"]
 
-        if (mode_num == 2 and self.player.id_in_group == group.random_player):
+        if (mode_num == 2 and self.player.id_in_group == group.authority_ID):
             return True
 
     def vars_for_template(self):
@@ -332,6 +350,7 @@ class Authority2(Page):
 
 
 class AuthorityWaitPage(WaitPage):
+    """Determines the payoff for all players based on the decision of the Authority"""
     def after_all_players_arrive(self):
         config = Constants.config
         group = self.group
@@ -373,7 +392,7 @@ class AuthorityWaitPage(WaitPage):
             group.individual_share = group.total_earnings / Constants.players_per_group
 
             for p in players:
-                if (p.id_in_group == group.random_player):
+                if (p.id_in_group == group.authority_ID):
                     p.payoff = p.income - (tax * p.contribution) + group.individual_share
                     p.payoff += group.appropriation
                 else:
@@ -420,5 +439,5 @@ class TaxResults(Page):
             'payoff': payoff
         }
 
-page_sequence = [Introduction, Transcribe2, Transcribe, ReportIncome, Audit, resultsWaitPage,
+page_sequence = [Introduction, Transcribe1, Transcribe2, ReportIncome, Audit, resultsWaitPage,
                  Authority,  Authority2, AuthorityWaitPage, AuthorityInfo, TaxResults]

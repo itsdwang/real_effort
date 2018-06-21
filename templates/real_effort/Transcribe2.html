@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-    {% if player.spanish %}
+{% if player.spanish %}
         <p> spanish text</p>
     {% else %}
         <p>
@@ -21,7 +21,7 @@
     <br><br>
 
 
-    {% formfield player.transcribed_text2 label="" %}
+    {% formfield player.transcribed_text label="" %}
 
     {% next_button %}
 
