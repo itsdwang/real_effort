@@ -62,6 +62,7 @@ class Constants(BaseConstants):
     num_rounds = len(config[0])
     players_per_group = 2
     instructions_template = 'real_effort/Instructions.html'
+    info_code = 'real_effort/Code.html'
 
     # List of the incomprehensible text that the players must transcribe
     reference_texts = [
@@ -70,8 +71,8 @@ class Constants(BaseConstants):
     ]
 
     decisions = [
-        "not modify the income multiplier.",
-        "increase the income multiplier to ",
+        "not modify the taxed income multiplier.",
+        "increase the taxed income multiplier to ",
         " and appropriate an extra ",
         " percent of the income to themselves."
     ]
@@ -91,9 +92,8 @@ class Subsession(BaseSubsession):
         for p in self.get_players():
             p.ratio = 1
             p.contribution = 0
+            p.spanish = Constants.config[0][self.round_number - 1]["spanish"]
             p.income = Constants.config[0][self.round_number - 1]["end"]
-
-        # self.group.total_reported_income = 0
 
 
 class Group(BaseGroup): 
@@ -114,19 +114,20 @@ class Group(BaseGroup):
     # Does the authority decide on mode 2 choice (appropriate a percentage of the money for
     # him/herself)?
     auth_appropriate = models.BooleanField()
-
     total_reported_income = models.CurrencyField()
+    appropriation = models.IntegerField()
+
 
 class Player(BasePlayer):
     transcribed_text = models.LongStringField()
     transcribed_text2 = models.LongStringField()
     levenshtein_distance = models.IntegerField()
-    ratio = models.FloatField()     # Multiplied by base income to determine starting income
+    ratio = models.FloatField()
     contribution = models.IntegerField(min = 0, initial = -1)
-    income = models.CurrencyField()
+    income = models.IntegerField()
     spanish = models.BooleanField()
     done = models.BooleanField()
     transcriptionDone = models.BooleanField()
     payoff = models.FloatField()
-
-    # others_total_reported_income = models.CurrencyField()
+    refText = models.LongStringField()
+    audit = models.BooleanField()

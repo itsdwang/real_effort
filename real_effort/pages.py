@@ -4,9 +4,11 @@ from .models import Constants, levenshtein, distance_and_ok
 from django.conf import settings
 from PIL import Image, ImageDraw, ImageFont
 import math
+from random import *
 import random
+import string
 
-def writeText(text, fileName): 
+def writeText(text, fileName):
     image = Image.open('real_effort/background.png')
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype('real_effort/Roboto-Regular.ttf', size=12)
@@ -14,13 +16,12 @@ def writeText(text, fileName):
     numLines = len(text) / imageChars
     numLines = math.ceil(numLines)
     lines = []
+
     for i in range(numLines):
         if(imageChars * (i + 1) < len(text)):
             lines.append(text[imageChars * i : imageChars * (i+1)])
         else:
             lines.append(text[imageChars * i : len(text)])
-
-            
 
     for i in range(numLines):
         (x, y) = (10, 20 * i)
@@ -30,12 +31,47 @@ def writeText(text, fileName):
 
     image.save(fileName)
 
+def generateText(difficulty):
+    #choose difficulty 1 to 3
+    min_char = 4 * difficulty
+    max_char = min_char + 6
+    allchar = string.ascii_lowercase + string.digits + string.punctuation
+    vowels = ('a','e', 'i','o','u')
+    
+        
+    generated = ''
 
+    
+    if(difficulty == 1):
+        allchar = string.ascii_lowercase
+    if(difficulty == 2):
+        allchar = string.ascii_lowercase + string.digits
+    for i in range(10):
+        for i in range(5):
+             allchar += vowels[i]
+
+        
+    
+    
+    while(len(generated) < 70 - max_char):
+        add = "".join(choice(allchar) for x in range(randint(min_char, max_char)))
+        generated += (add + " ")
+
+    return generated
+
+def getPageCode(self):
+    config = Constants.config
+    t_code = 0
+    auth_code = config[0][self.round_number - 1]["mode"]
+
+    if config[0][self.round_number - 1]["transcription"] == True:
+        t_code = 1
+
+    # "P" + str(self.round_number) + "_" + "T" + str(t_code) + "_" + "A" + str(auth_code)
+    return "T" + str(t_code) + "_" + "A" + str(auth_code)
 
 
 class Introduction(Page):
-    form_model = 'player'
-    form_fields = ['spanish']
     """Description of the game: How to play and returns expected"""
 
     def is_displayed(self):
@@ -43,6 +79,7 @@ class Introduction(Page):
             return True
 
         return False
+
 
 class Transcribe(Page):
     form_model = 'player'
@@ -59,24 +96,27 @@ class Transcribe(Page):
         for p in self.player.in_all_rounds():
             if(p.transcriptionDone):
                 return False
-        print("IN TRANSCRIBE")
+        self.player.refText = generateText(Constants.config[0][self.round_number - 1]["difficulty"])
 
         return True
 
     def vars_for_template(self):
+        pgCode = getPageCode(self)
 
-        writeText("test for transcribe page #21983401-29384-129834-1283-4182-304981-2384-12348", 'real_effort/static/real_effort/paragraphs/{}.png'.format(2))
+        writeText(self.player.refText, 'real_effort/static/real_effort/paragraphs/{}.png'.format(2))
+
         return {
-            'image_path': 'real_effort/paragraphs/{}.png'.format(2), 
-            'reference_text': Constants.reference_texts[1],
+            'image_path': 'real_effort/paragraphs/{}.png'.format(2),
+            'reference_text': self.player.refText,
             'debug': settings.DEBUG,
             'required_accuracy': 100 * (1 - Constants.allowed_error_rates[1]),
+            'pgCode': pgCode, 'round_num': self.round_number
         }
 
     def transcribed_text_error_message(self, transcribed_text):
         """Determines the player's transcription accuracy."""
 
-        reference_text = Constants.reference_texts[1]
+        reference_text = self.player.refText
         allowed_error_rate = Constants.allowed_error_rates[1]
         distance, ok = distance_and_ok(transcribed_text, reference_text,
                                        allowed_error_rate)
@@ -90,8 +130,10 @@ class Transcribe(Page):
                 return "This transcription appears to contain too many errors."
 
     def before_next_page(self):
-        """Initialize payoff to have a default value of 0"""
+        self.player.ratio = 1 - self.player.levenshtein_distance / len(self.player.refText)
+        self.player.income *= self.player.ratio
         self.player.payoff = 0
+        self.player.transcriptionDone = True
 
 
 class Transcribe2(Page):
@@ -99,6 +141,7 @@ class Transcribe2(Page):
     form_fields = ['transcribed_text2']
 
     def is_displayed(self):
+        self.player.refText = generateText(Constants.config[0][self.round_number - 1]["difficulty"])
         # Don't display this Transcribe page if the "transcription" value in
         # the dictionary representing this round in config.py is False
         if (Constants.config[0][self.round_number - 1]["transcription"] == False):
@@ -108,18 +151,20 @@ class Transcribe2(Page):
         # Don't display this Transcribe page for each player who has completed
         # the second transcription task
         for p in self.player.in_all_rounds():
-            if(p.transcriptionDone): 
+            if(p.transcriptionDone):
                 return False
 
         return True
 
-
     def vars_for_template(self):
-        writeText("Test for transcribe page #1 lak;sjdfl;aksjdfl;aksjdfl;kjasdl;fkjals;dkfja;sldkjf;alskjdf;ajksdf;lajk;", 'real_effort/static/real_effort/paragraphs/{}.png'.format(1))
+        pgCode = getPageCode(self)
+
+        writeText(self.player.refText, 'real_effort/static/real_effort/paragraphs/{}.png'.format(1))
         return {
             'image_path': 'real_effort/paragraphs/{}.png'.format(1),
-            'reference_text': Constants.reference_texts[0],
+            'reference_text': self.player.refText,
             'debug': settings.DEBUG,
+            'pgCode': pgCode, 'round_num': self.round_number,
             'required_accuracy': 100 * (1 - Constants.allowed_error_rates[0]),
         }
 
@@ -128,6 +173,7 @@ class Transcribe2(Page):
         self.player.payoff = 0
 
 
+"""
 class TranscribeResults(Page):
     form_model = 'player'
     form_fields = []
@@ -146,7 +192,6 @@ class TranscribeResults(Page):
                 return False
 
         return True
-
 
     def vars_for_template(self):
         table_rows = []
@@ -173,12 +218,13 @@ class TranscribeResults(Page):
 
             table_rows.append(row)
 
+        print("inside transcriberesults varsfortemplate")
         return {'table_rows': table_rows}
 
     def before_next_page(self):
         # Disables transcription for the rest of the game
         self.player.transcriptionDone = True
-
+"""
 
 class part2(Page):
     form_model = 'player'
@@ -192,75 +238,71 @@ class part2(Page):
         # If transcription mode is set to true for this round, set the player's income according
         # to their transcription accuracy
         config = Constants.config
+        pgCode = getPageCode(self)
         endowment = config[0][self.round_number - 1]["end"]
         transcribe_on = config[0][self.round_number - 1]["transcription"]
 
-        # Is this needed? - What is the purpose?
-        print("endowment is", endowment)
-        print("player income after is:", self.player.income)
-
-        """
-        if self.player.ratio == 1 and Constants.config[0][self.round_number - 1]["transcription"] == False:
+        if self.player.ratio == 1 and Constants.config[0][self.round_number - 1]["transcription"] == True:
             for p in self.player.in_all_rounds():
                 if p.ratio < 1:
                     self.player.ratio = p.ratio
-                    print("player income before is:", self.player.income)
-                    self.player.income *= self.player.ratio
+                    self.player.income *= p.ratio
                     break
 
-                    print("player income after is:", self.player.income)
-        """
-
-        # Displays the tax as a percentage rather than as a decimal between 0 and 1
-        self.player.ratio = round(self.player.ratio, 5)
         displaytax = config[0][self.round_number - 1]["tax"] * 100
-
-        display_ratio = self.player.ratio * 100
+        display_ratio = round(self.player.ratio * 100, 1)
         display_income = int(self.player.income)
 
         return {'ratio': self.player.ratio, 'income': self.player.income, 'tax': displaytax,
                 'flag': config[0][self.round_number - 1]["transcription"],
                 'mult': config[0][self.round_number - 1]["multiplier"],
                 'display_ratio': display_ratio, 'endowment': endowment,
-                'display_income': display_income, 'transcribe_on': transcribe_on}
+                'display_income': display_income, 'transcribe_on': transcribe_on,
+                'pgCode': pgCode, 'round_num': self.round_number
+        }
+
+    def before_next_page(self):
+        self.group.appropriation = 0
+        if(random.randint(0,1) == 0):
+            self.player.audit = True
+        else:
+            self.player.audit = False
+
+
+class Audit(Page):
+    def is_displayed(self):
+        return self.player.audit
+    
+    def vars_for_template(self):
+        if self.player.contribution != self.player.income:
+            temp = self.player.income
+
+            penalty = Constants.config[0][self.round_number-1]["penalty"]
+            self.player.income *= penalty
+            return{
+                'fail': True,
+                'correctIncome': temp,
+                'reportedIncome': self.player.contribution,
+                'newIncome': self.player.income,
+                'penalty': (1 - penalty) * 100
+            }
+        else:
+            return{
+                'fail': False
+            }
+            
 
 
 class resultsWaitPage(WaitPage):
     def after_all_players_arrive(self):
-        config = Constants.config
         group = self.group
-        players = group.get_players()
+        
+        
 
-        # total_reported_income = 0
-
-
-        # for p in players:
-            # group.total_reported_income += p.contribution
-
-        # print("total reported income is: ", group.total_reported_income)
-
-        # Will modify others_total_reported income to get average of other participants reported income
-        # in
-        """
-        for t in players:
-            t.others_total_reported_income = total_reported_income
-        """
-
-        """
-        contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
-        group.total_contribution = sum(contributions)
-        group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
-        group.individual_share = group.total_earnings / Constants.players_per_group
-
-        for p in players:
-            p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
-        """
+        
 
         # Generate a random player ID to determine who will be the authority
         group.random_player = random.randint(1, Constants.players_per_group)
-        print("random player id is", group.random_player)
-
-    pass
 
 
 class Authority(Page):
@@ -278,19 +320,17 @@ class Authority(Page):
 
     def vars_for_template(self):
         config = Constants.config
+        pgCode = getPageCode(self)
 
         return {
             'mult': config[0][self.round_number - 1]["multiplier"],
+            'pgCode': pgCode, 'round_num': self.round_number
         }
-    pass
 
 
 class AuthorityInfo(Page):
     def is_displayed(self):
-        config = Constants.config
         group = self.group
-
-        mode_num = config[0][self.round_number - 1]["mode"]
 
         if (self.player.id_in_group == group.random_player):
             return False
@@ -300,18 +340,22 @@ class AuthorityInfo(Page):
     def vars_for_template(self):
         config = Constants.config
         group = self.group
+        pgCode = getPageCode(self)
 
         mode_num = config[0][self.round_number - 1]["mode"]
+        multiplier = config[0][self.round_number - 1]["multiplier"]
+        tax = config[0][self.round_number - 1]["tax"]
+
         if(mode_num == 1 and group.authority_multiply):
-            decision = Constants.decisions[1] + " " + str(config[0][self.round_number - 1]["multiplier"]) + "."
+            decision = Constants.decisions[1] + " " + str(multiplier) + "."
         elif(mode_num == 1 and not group.authority_multiply):
             decision = Constants.decisions[0]
         elif(mode_num == 2 and not group.auth_appropriate):
-            decision = Constants.decisions[1] + " " + str(config[0][self.round_number - 1]["multiplier"]) + " ."
+            decision = Constants.decisions[1] + " " + str(multiplier) + " ."
         else:
-            decision = Constants.decisions[1]  + " " + str(config[0][self.round_number - 1]["multiplier"]) + Constants.decisions[2] + str(config[0][self.round_number - 1]["tax"] * 100) + Constants.decisions[3]
+            decision = Constants.decisions[1] + " " + str(multiplier) + Constants.decisions[2] + str(tax * 100) + Constants.decisions[3]
 
-        return {"decision": decision}
+        return {"decision": decision, 'pgCode': pgCode}
 
 
 class Authority2(Page):
@@ -329,14 +373,14 @@ class Authority2(Page):
 
     def vars_for_template(self):
         config = Constants.config
+        pgCode = getPageCode(self)
 
         displaytax = config[0][self.round_number - 1]["tax"] * 100
 
         return {
             'mult': config[0][self.round_number - 1]["multiplier"],
-            'tax': displaytax
+            'tax': displaytax, 'pgCode': pgCode, 'round_num': self.round_number
         }
-        pass
 
 
 class AuthorityWaitPage(WaitPage):
@@ -346,64 +390,45 @@ class AuthorityWaitPage(WaitPage):
         players = group.get_players()
 
         mode_num = config[0][self.round_number - 1]["mode"]
+        tax = config[0][int(self.round_number - 1)]["tax"]
+        multiplier = config[0][self.round_number - 1]["multiplier"]
 
-        # NOTE: the code below can definitely be refactored (get rid of duplicate code), but I just want to see if
-        # the functionality is correct first
-        if(mode_num == 1 and group.authority_multiply):
-            contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
-            group.total_contribution = config[0][self.round_number - 1]["multiplier"] * sum(contributions)
-            group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
+        if mode_num == 1:
+            contributions = [p.contribution * tax for p in players]
+            group.total_contribution = multiplier * sum(contributions)
+            group.total_earnings = group.total_contribution
+
             group.individual_share = group.total_earnings / Constants.players_per_group
 
             for p in players:
-                p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
+                p.payoff = p.income - (tax * p.contribution) + group.individual_share
 
-        elif(mode_num == 1 and not group.authority_multiply):
-            contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
-            group.total_contribution = sum(contributions)
-            group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
+        elif mode_num == 2 and not group.auth_appropriate:
+            contributions = [p.contribution * tax for p in players]
+            group.total_contribution = multiplier * sum(contributions)
+            group.total_earnings = group.total_contribution
+
             group.individual_share = group.total_earnings / Constants.players_per_group
 
             for p in players:
-                p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
+                p.payoff = p.income - (tax * p.contribution) + group.individual_share
 
-        elif(mode_num == 2 and not group.auth_appropriate):
-            # same as content in first if statement block
-            contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
-            group.total_contribution = config[0][self.round_number - 1]["multiplier"] * sum(contributions)
-            group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
-            group.individual_share = group.total_earnings / Constants.players_per_group
-
-            for p in players:
-                p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
-        # Mode 2, Authority 2, Button 2
+        # Mode 2, Authority Mode 2, Button 2 (Appropriation)
         else:
-            # contributions = [p.contribution for p in players]
-            contributions = [p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players]
-            # group.total_contribution = sum(contributions) * config[0][int(self.round_number - 1)]["tax"]
-            group.total_contribution = config[0][self.round_number - 1]["multiplier"] * sum(contributions)
+            contributions = [p.contribution * tax for p in players]
+            group.total_contribution = multiplier * sum(contributions)
+            group.total_earnings = group.total_contribution
 
-            group.total_earnings = config[0][self.round_number - 1]["multiplier"] * group.total_contribution
-            appropriation = config[0][int(self.round_number - 1)]["tax"] * group.total_earnings
+            group.appropriation = tax * group.total_contribution
+            group.total_earnings -= group.appropriation
             group.individual_share = group.total_earnings / Constants.players_per_group
-            
-
-            print("group.total_contribution after subtracting appropriation is: ", group.total_contribution)
-            print("appropriation is: ", appropriation)
-            print("group.total_earnings is: ", group.total_earnings)
-            print("group.individual_share is: ", group.individual_share)
 
             for p in players:
                 if (p.id_in_group == group.random_player):
-                    p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
-                    p.payoff += appropriation
+                    p.payoff = p.income - (tax * p.contribution) + group.individual_share
+                    p.payoff += group.appropriation
                 else:
-                    p.payoff = p.income - (config[0][int(self.round_number - 1)]["tax"] * p.contribution) + group.individual_share
-                    # p.payoff -= appropriation / (len(players) - 1)
-                    p.payoff -= appropriation / (len(players) - 1)
-
-        print("did authority decide to multiply: ", group.authority_multiply)
-    pass
+                    p.payoff = p.income - (tax * p.contribution) + group.individual_share
 
 
 class TaxResults(Page):
@@ -416,11 +441,17 @@ class TaxResults(Page):
         group = self.group
         player = self.player
         players = group.get_players()
-        share = self.group.total_earnings / Constants.players_per_group
-        multiplier = config[0][self.round_number - 1]["multiplier"]
-        others_avg_income = 0
 
-        total_tax_contribution = sum([p.contribution * config[0][int(self.round_number - 1)]["tax"] for p in players])
+        share = self.group.total_earnings / Constants.players_per_group
+        tax = config[0][int(self.round_number - 1)]["tax"]
+        multiplier = config[0][self.round_number - 1]["multiplier"]
+        mode = config[0][self.round_number - 1]["mode"]
+
+        display_tax = tax * 100
+        others_avg_income = 0
+        pgCode = getPageCode(self)
+
+        total_tax_contribution = sum([p.contribution * tax for p in players])
 
         for p in players:
             others_avg_income += p.contribution
@@ -428,25 +459,13 @@ class TaxResults(Page):
         others_avg_income -= player.contribution
         others_avg_income /= (Constants.players_per_group - 1)
 
-        appropriation = 0
-        tax = config[0][int(self.round_number - 1)]["tax"]
-        display_tax = tax * 100
-
-        if group.auth_appropriate:
-            appropriation = tax * group.total_earnings
-
         return {
-            'total_earnings': self.group.total_earnings,
-            'player_earnings': share,
-            'avg_income': others_avg_income,
-            'num_other_players': Constants.players_per_group - 1,
-            'total_tax_contribution': total_tax_contribution,
-            'multiplier': multiplier,
-            'appropriation': appropriation,
-            'tax': tax,
-            'display_tax': display_tax,
+            'total_earnings': self.group.total_earnings, 'player_earnings': share,
+            'avg_income': others_avg_income, 'num_other_players': Constants.players_per_group - 1,
+            'total_tax_contribution': total_tax_contribution, 'multiplier': multiplier,
+            'appropriation': group.appropriation,'tax': tax, 'display_tax': display_tax,
+            'pgCode': pgCode, 'mode': mode, 'round_num': self.round_number
         }
 
-
-page_sequence = [Introduction, Transcribe2, Transcribe, TranscribeResults, part2, resultsWaitPage,
+page_sequence = [Introduction, Transcribe2, Transcribe, part2, Audit, resultsWaitPage,
                  Authority,  Authority2, AuthorityWaitPage, AuthorityInfo, TaxResults]

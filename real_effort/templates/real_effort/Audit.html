@@ -1,0 +1,22 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    <p style="font-size:15px; color:#CD853F;" align="right">{{ pgCode }}<br/>Period {{ round_num }}</p>    Audit
+{% endblock %}
+
+{% block content %}
+
+    {% if fail %}
+        <p>you got audited and found out, you should have reported {{ correctIncome }} but you reported {{ reportedIncome }}, so you have 
+            been penalized {{ penalty }} percent of your income. Your income is now {{ newIncome }}.
+
+    {% else %}
+        <p>you were selected for an audit but you reported your income right good job</p>
+
+{% endif %}
+
+
+    {% next_button %}
+
+{% endblock %}

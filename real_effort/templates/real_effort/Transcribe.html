@@ -2,7 +2,8 @@
 {% load otree static %}
 
 {% block title %}
-    Transcription task {{ subsession.round_number }}/{{ Constants.num_rounds }}
+    <p style="font-size:15px; color:#CD853F;" align="right">{{ pgCode }}<br/>Period {{ round_num }}</p>
+    Transcription Task
 {% endblock %}
 
 {% block content %}
@@ -14,8 +15,6 @@
         Be exact and make sure to get all characters and spaces correct.
     </p>
     {% endif %}
-
-    
 
 
     <img src="{% static image_path %}"/>
