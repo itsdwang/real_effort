@@ -4,7 +4,7 @@ This game is a modified public goods game where players’ initial income is det
 ## How to Run the Game 
 1. Clone the repository at https://github.com/oTree-org/oTree, which contains the core files necessary to run experiments that are written using the oTree Python framework, into a folder on your local machine.
 2. Clone this real_effort repository into the aforementioned folder.
-3. Modify the settings.py file and add a dictionary entry in the SESSION_CONFIGS list such that the necessary name, display_name, num_demo_participants, and app_sequence keys are included. The value for the 'name' key must be the exact name of the experiment repository, which is in this csae 'real_effort'. An example is shown below:
+3. Modify the settings.py file and add a dictionary entry in the SESSION_CONFIGS list such that the necessary name, display_name, num_demo_participants, and app_sequence keys are included. The value for the 'name' key must be the exact name of the experiment repository, which is in this case 'real_effort'. An example is shown below:
    
    {'name': 'real_effort', 'display_name': "Public Goods With Transcription", 'num_demo_participants': 4, 'app_sequence': ['real_effort']}
 4. Ensure that you're in the folder that you cloned the core oTree files into. Then, type "otree devserver" into the terminal.
